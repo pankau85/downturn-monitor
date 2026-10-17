@@ -1,0 +1,1 @@
+xlrd==2.0.1  # optional: NY Fed recession-probability workbook

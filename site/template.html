@@ -1,0 +1,178 @@
+<meta charset="utf-8">
+<title>Downturn Monitor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap">
+<style>
+/*__CSS__*/
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Downturn Monitor</h1>
+      <p class="sub">Recession and correction early-warning board for the US economy and markets. Thirty public indicators, six pillars, one score from 1 (benign) to 5 (severe).</p>
+    </div>
+    <div class="top-right">
+      <div class="freshness" id="freshness"><span class="dot warn"></span>Loading data…</div>
+      <button class="btn" id="btnTheme" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 12.5v-11a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg><span>Theme: auto</span></button>
+      <button class="btn" id="btnSettings" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="6" cy="4" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="8" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/></svg><span>Weights &amp; rules</span></button>
+      <button class="btn" id="btnExport" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>Download CSV</span></button>
+    </div>
+  </header>
+
+  <div id="dataBanner" class="banner warn" hidden></div>
+  <div id="loading" class="card skeleton">Loading the latest data…</div>
+  <div id="loadError" class="banner err" hidden>
+    <div class="grow"><b>Data unavailable.</b> <span id="loadErrorMsg"></span></div>
+    <label class="btn sm">Load data file<input type="file" id="fileInput" accept=".json,application/json" hidden></label>
+  </div>
+
+  <main id="main" hidden>
+    <section class="hero">
+      <div class="card gauge-card">
+        <div id="gauge"></div>
+        <div class="gauge-score" id="gaugeScore">–</div>
+        <div class="gauge-level" id="gaugeLevel">–</div>
+        <p class="gauge-desc" id="gaugeDesc"></p>
+        <div class="gauge-deltas" id="gaugeDeltas"></div>
+      </div>
+      <div class="card hero-side">
+        <div class="lenses" id="lenses"></div>
+        <div class="diffusion" id="diffusion"></div>
+        <div class="summary" id="summary"></div>
+      </div>
+    </section>
+
+    <div class="controls" role="toolbar" aria-label="View controls">
+      <div class="ctl-group asof">
+        <span class="ctl-label">Viewing</span>
+        <span class="when" id="asofWhen">Today</span>
+        <input type="range" id="asofSlider" min="0" max="100" value="100" aria-label="View the board as of an earlier month">
+        <button class="btn sm" id="btnToday" type="button" hidden>Back to today</button>
+      </div>
+      <div class="ctl-group">
+        <span class="ctl-label">Chart range</span>
+        <div class="seg" id="rangeSeg" role="group" aria-label="Chart range">
+          <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
+          <button type="button" data-range="3Y" aria-pressed="false">3Y</button>
+          <button type="button" data-range="5Y" aria-pressed="true">5Y</button>
+          <button type="button" data-range="10Y" aria-pressed="false">10Y</button>
+          <button type="button" data-range="20Y" aria-pressed="false">20Y</button>
+          <button type="button" data-range="Max" aria-pressed="false">Max</button>
+        </div>
+      </div>
+    </div>
+    <div id="asofBanner" class="banner info" hidden></div>
+    <div id="customNote" class="banner info" hidden><div class="grow">Custom weights or thresholds are in use on this browser. Open <b>Weights &amp; rules</b> to review or reset them.</div></div>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Composite score since 1990</h2><p>Monthly readings built from the data available at each month end, with release lags applied. The final point is today’s live reading.</p></div>
+      </div>
+      <div class="legend-row" id="histLegend"></div>
+      <div class="chart-wrap" id="histChart"></div>
+    </section>
+
+    <section class="pillars" id="pillars" aria-label="Pillar scores"></section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>All indicators</h2><p>Click a row for the chart, the rule and the thresholds. Percentile is the latest value’s rank within its own trailing ten years. Weight is the indicator’s effective share of the composite.</p></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="tbl">
+          <thead><tr>
+            <th data-key="name">Indicator</th><th data-key="pillar">Pillar</th><th class="r">Latest</th><th>As of</th><th class="r" data-key="delta">Score Δ 1m</th><th class="r" data-key="score">Score</th><th>Level</th><th data-key="pct">10-yr percentile</th><th class="r" data-key="weight">Weight</th>
+          </tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Track record</h2><p>How the composite read before and during each NBER recession since 1990, and how high it got during market stress episodes that did not become recessions. Historical readings use data as revised today, except the Sahm rule, which is the real-time series.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="tbl-wrap">
+          <table class="tbl"><thead><tr><th>Recession</th><th class="r">12m before</th><th class="r">6m before</th><th class="r">3m before</th><th class="r">Start</th><th class="r">Peak</th><th class="r">First High reading</th></tr></thead><tbody id="btRecessions"></tbody></table>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl"><thead><tr><th>Stress episode (no recession)</th><th>Window</th><th class="r">Peak composite</th></tr></thead><tbody id="btStress"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Reference models</h2><p>Two published recession-probability models, shown for context. They are not part of the composite.</p></div>
+      </div>
+      <div class="ref-grid" id="refGrid"></div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head"><div><h2>How the score works</h2></div></div>
+      <div class="levels">
+        <div class="level-card l1"><div class="n">1</div><div class="t">Benign</div><div class="r">1.0 – 1.8</div><div class="d">Expansion intact. Few indicators elevated.</div></div>
+        <div class="level-card l2"><div class="n">2</div><div class="t">Guarded</div><div class="r">1.8 – 2.6</div><div class="d">Late-cycle signs. Worth watching, not acting on.</div></div>
+        <div class="level-card l3"><div class="n">3</div><div class="t">Elevated</div><div class="r">2.6 – 3.4</div><div class="d">Broad slowdown signals. Corrections are typical here.</div></div>
+        <div class="level-card l4"><div class="n">4</div><div class="t">High</div><div class="r">3.4 – 4.2</div><div class="d">Recession or correction risk high; several pillars stressed.</div></div>
+        <div class="level-card l5"><div class="n">5</div><div class="t">Severe</div><div class="r">4.2 – 5.0</div><div class="d">Recession or major correction under way or imminent.</div></div>
+      </div>
+      <div class="prose">
+        <p>Every indicator is converted to a continuous score from 1 to 5 using five thresholds: the values at which it would read exactly 1, 2, 3, 4 and 5, with straight-line interpolation in between. The thresholds come from the published literature on each indicator (the Sahm rule’s 0.50 pp, the Chicago Fed’s −0.70, the conventional 10% correction and 20% bear market) and from how the series behaved around past recessions. A few indicators use a richer rule: the yield curve is cycle-aware (the danger window is the re-steepening after an inversion), credit spreads take the higher of a level score and a momentum score, CPI is two-sided, and consumer sentiment blends level and change.</p>
+        <p>Indicators are averaged within each pillar using the weights shown, and pillars are averaged into the composite. Indicators with no data drop out and the remaining weights are rescaled, so the score is always comparable; the coverage figure tells you how much of the intended weight is in play. The Economy lens averages the rates, labor, growth and consumer pillars; the Markets lens averages credit conditions and market stress.</p>
+        <p>The composite is a prior, not a forecast. No single indicator has a clean record and the set as a whole has produced readings above 3 in several episodes that ended without a recession (see the track record above). Its job is to tell you how much of the usual pre-downturn pattern is present, and which pieces are driving it.</p>
+      </div>
+      <div class="two-col">
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pillar</th><th class="r">Weight</th><th>Lens</th><th>Indicators and weights within the pillar</th></tr></thead><tbody id="weightsTbl"></tbody></table></div>
+        <div class="prose">
+          <h3>Known limitations</h3>
+          <ul>
+            <li>The Conference Board LEI and consumer confidence are proprietary and not included; the OECD and Philadelphia Fed leading indexes are candidates for a later version.</li>
+            <li>ISM’s PMI is not on FRED; it is pulled from DBnomics when available and shown as unavailable otherwise. The regional Fed surveys cover the same ground.</li>
+            <li>S&amp;P 500 history before 2016 comes from Stooq or Yahoo Finance (FRED carries only ten years). If both fail, equity indicators run on FRED’s ten years.</li>
+            <li>Historical readings use today’s revised data (except the real-time Sahm rule) and assumed publication lags, so the back-test is cleaner than a true real-time test would be.</li>
+            <li>Market data refreshes each morning for the prior close; monthly releases appear after the second daily run on release days.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sec-head"><div><h3>Data status</h3><p>Every input series, its source, and the date of its last observation. “Later than usual” means the series is older than its normal release cadence at the time the data file was built.</p></div></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Series</th><th>Description</th><th>Frequency</th><th>Source</th><th class="r">Last observation</th><th>Status</th></tr></thead><tbody id="dataStatus"></tbody></table></div>
+    </section>
+
+    <footer>
+      <span>Data file generated <span id="genStamp"></span>.</span>
+      <span>Sources: FRED (Federal Reserve Bank of St. Louis), ICE BofA indexes via FRED, Chicago Fed, St. Louis Fed, New York Fed, Dallas Fed, BLS, BEA, Census, U. Michigan, CBOE, Stooq, Yahoo Finance, DBnomics.</span>
+      <a id="repoLink" href="#" target="_blank" rel="noopener">Pipeline and source code</a>
+    </footer>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Indicator detail">
+  <div class="drawer-head">
+    <div><div class="crumb" id="drawerCrumb"></div><h2 id="drawerTitle"></h2></div>
+    <button class="btn sm" id="drawerClose" type="button" aria-label="Close">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+<div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="box">
+    <div class="box-head"><h2 id="settingsTitle">Weights &amp; rules</h2><button class="btn sm" id="settingsClose" type="button">Close</button></div>
+    <div class="box-body" id="settingsBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.DM_CONFIG = /*__CONFIG__*/{};
+</script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+/*__APP__*/
+</script>
