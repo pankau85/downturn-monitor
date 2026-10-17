@@ -22,8 +22,15 @@ site/                               the dashboard: template.html + styles.css + 
 pipeline/build_site.py              inlines everything into one self-contained site/downturn-monitor.html
 ```
 
-The published dashboard (a Claude artifact) fetches `data/data.json` from this repository's raw URL on every load, so it is
-always as fresh as the last workflow run. It also carries its own snapshot of the file as a fallback.
+Three ways to open the dashboard, all reading the same `data/data.json`:
+
+- **GitHub Pages** (plain website): `index.html` at the repository root, served at `https://pankau85.github.io/downturn-monitor/`
+  once Pages is enabled (Settings → Pages → Deploy from a branch → `main` / root). It reads `data/data.json` relatively.
+- **Standalone file**: `downturn-monitor.html` — one self-contained file you can download, email or put on a shared drive;
+  it fetches the data from this repository's raw URL when opened, with a "Load data file" fallback when offline.
+- **Claude artifact**: the same page published as an artifact, with its own daily-refreshed snapshot of the data.
+
+Both HTML copies are rebuilt from `site/` by the workflow on every run, so they never drift from the source.
 
 ## Running the pipeline yourself
 

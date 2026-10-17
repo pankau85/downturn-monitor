@@ -33,14 +33,16 @@ jobs:
       - name: Pull series from FRED and other public sources
         run: python pipeline/build_data.py --out data/data.json
 
-      - name: Rebuild the GitHub Pages copy of the dashboard from site/ sources
-        run: python pipeline/build_site.py --out index.html --live-url data/data.json --repo-url https://github.com/${{ github.repository }}
+      - name: Rebuild the GitHub Pages copy and the standalone file from site/ sources
+        run: |
+          python pipeline/build_site.py --out index.html --live-url data/data.json --repo-url https://github.com/${{ github.repository }}
+          python pipeline/build_site.py --out downturn-monitor.html --live-url https://raw.githubusercontent.com/${{ github.repository }}/main/data/data.json --repo-url https://github.com/${{ github.repository }}
 
       - name: Commit refreshed data
         run: |
           git config user.name "downturn-monitor-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/ index.html
+          git add data/ index.html downturn-monitor.html
           if git diff --cached --quiet; then
             echo "No data changes."
           else
