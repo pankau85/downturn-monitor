@@ -46,6 +46,9 @@ jobs:
           fi
 
       # GitHub disables scheduled workflows after 60 days without repository activity.
-      # This step re-enables the schedule so the dashboard keeps updating unattended.
-      - uses: gautamkrishnar/keepalive-workflow@v2
-        continue-on-error: true
+      # Touching the workflow's enabled state through the API counts as activity and keeps the schedule alive.
+      - name: Keep the schedule alive
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PUT "repos/${{ github.repository }}/actions/workflows/update-data.yml/enable" || echo "keepalive skipped"
