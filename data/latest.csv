@@ -11,6 +11,7 @@ PCEPILFE,Core PCE price index (SA),index,M,2026-08-01,130.455,812,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-14,101.91,9523,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-15,3.23,786,FRED,True
 BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-15,0.84,785,FRED,True
+BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-15,1.44,10197,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-09,-0.499,2910,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-09,-0.7206,1711,FRED,True
 DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
@@ -37,6 +38,6 @@ DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-09,121.6023,520
 USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-08-01,23342.8,812,FRED,True
-SPX,"S&P 500 (Stooq, full history)",index,D,2026-10-16,7659.439941,168,STOOQ,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-16,101.102898,288,YAHOO,True
-ISMPMI,ISM Manufacturing PMI,diffusion,M,2025-12-01,10.3,68,DBNOMICS_ISM,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-16,7659.439941,10529,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-16,101.099998,5917,YAHOO,True
+NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
