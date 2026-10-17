@@ -2,9 +2,9 @@
 """
 Downturn Monitor – data pipeline
 ================================
-Pulls every input series from free public sources (FRED first; Stooq / Yahoo /
-DBnomics / NY Fed for the few series FRED does not carry) and writes a compact
-data/data.json that the dashboard page reads.
+Pulls every input series from free public sources (FRED first; Yahoo Finance for
+the S&P 500 full history and the MOVE index; the NY Fed for its yield-curve
+recession probability) and writes a compact data/data.json that the dashboard reads.
 
 Design rules
 * Standard library only (urllib, csv, json). Optional extras (xlrd for the NY Fed
@@ -53,6 +53,7 @@ SERIES = [
     # ---- Credit & financial conditions ------------------------------------ #
     {"id": "BAMLH0A0HYM2", "src": "FRED", "freq": "D", "start": "1996-12-31", "title": "ICE BofA US High Yield OAS", "units": "pct"},
     {"id": "BAMLC0A0CM",   "src": "FRED", "freq": "D", "start": "1996-12-31", "title": "ICE BofA US Corporate (IG) OAS", "units": "pct"},
+    {"id": "BAA10Y",       "src": "FRED", "freq": "D", "start": "1986-01-02", "title": "Moody's Baa corporate yield minus 10-Year Treasury", "units": "pct pts"},
     {"id": "NFCI",         "src": "FRED", "freq": "W", "start": "1971-01-01", "title": "Chicago Fed National Financial Conditions Index", "units": "index"},
     {"id": "STLFSI4",      "src": "FRED", "freq": "W", "start": "1993-12-31", "title": "St. Louis Fed Financial Stress Index", "units": "index"},
     {"id": "DRTSCILM",     "src": "FRED", "freq": "Q", "start": "1990-01-01", "title": "SLOOS: net % of banks tightening C&I standards (large/mid firms)", "units": "pct"},
@@ -85,10 +86,9 @@ SERIES = [
     {"id": "RECPROUSM156N",  "src": "FRED", "freq": "M", "start": "1967-06-01", "title": "Smoothed US recession probabilities (Chauvet-Piger)", "units": "pct"},
     {"id": "M2SL",           "src": "FRED", "freq": "M", "start": "1959-01-01", "title": "M2 money stock (SA)", "units": "USD bn"},
     # ---- Non-FRED (optional) --------------------------------------------- #
-    {"id": "SPX",    "src": "STOOQ", "symbol": "^spx",  "freq": "D", "start": "1985-01-01", "title": "S&P 500 (Stooq, full history)", "units": "index", "fallback": "YAHOO:^GSPC"},
+    {"id": "SPX",    "src": "YAHOO", "symbol": "^GSPC", "freq": "D", "start": "1985-01-01", "title": "S&P 500 (Yahoo Finance, full daily history)", "units": "index"},
     {"id": "MOVE",   "src": "YAHOO", "symbol": "^MOVE", "freq": "D", "start": "2002-01-01", "title": "ICE BofA MOVE index (Treasury implied vol)", "units": "index"},
-    {"id": "ISMPMI", "src": "DBNOMICS_ISM", "freq": "M", "start": "1959-01-01", "title": "ISM Manufacturing PMI", "units": "diffusion"},
-    {"id": "NYFEDPROB", "src": "NYFED", "freq": "M", "start": "1959-01-01", "title": "NY Fed recession probability, 12 months ahead (yield-curve model)", "units": "pct"},
+    {"id": "NYFEDPROB", "src": "NYFED", "freq": "M", "start": "1959-01-01", "title": "NY Fed recession probability (yield-curve model); rows dated by the month predicted", "units": "pct"},
 ]
 
 # --------------------------------------------------------------------------- #
@@ -152,26 +152,9 @@ def fetch_fred(series_id: str, start: str) -> list[tuple[dt.date, float]]:
     return out
 
 
-def fetch_stooq(symbol: str) -> list[tuple[dt.date, float]]:
-    url = f"https://stooq.com/q/d/l/?s={urllib.parse.quote(symbol)}&i=d"
-    raw = http_get(url).decode("utf-8", errors="replace")
-    if "Exceeded" in raw[:200] or "Date" not in raw[:200]:
-        raise RuntimeError(f"Stooq refused or returned no data: {raw[:80]!r}")
-    rdr = csv.DictReader(io.StringIO(raw))
-    out = []
-    for row in rdr:
-        try:
-            out.append((parse_date(row["Date"]), float(row["Close"])))
-        except (KeyError, ValueError):
-            continue
-    if len(out) < 100:
-        raise RuntimeError("Stooq returned too few rows")
-    return out
-
-
 def fetch_yahoo(symbol: str) -> list[tuple[dt.date, float]]:
     url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
-           f"{urllib.parse.quote(symbol)}?range=max&interval=1d&includePrePost=false")
+           f"{urllib.parse.quote(symbol)}?period1=0&period2={int(time.time())}&interval=1d&includePrePost=false")
     js = json.loads(http_get(url).decode("utf-8"))
     res = js["chart"]["result"][0]
     ts = res["timestamp"]
@@ -183,36 +166,6 @@ def fetch_yahoo(symbol: str) -> list[tuple[dt.date, float]]:
         out.append((dt.datetime.utcfromtimestamp(t).date(), float(c)))
     if len(out) < 100:
         raise RuntimeError("Yahoo returned too few rows")
-    return out
-
-
-def fetch_dbnomics_ism() -> list[tuple[dt.date, float]]:
-    """ISM Manufacturing PMI via DBnomics (provider ISM, dataset pmi)."""
-    url = "https://api.db.nomics.world/v22/series/ISM/pmi?observations=1&limit=200"
-    js = json.loads(http_get(url).decode("utf-8"))
-    docs = js.get("series", {}).get("docs", [])
-    pick = None
-    for d in docs:
-        code = (d.get("series_code") or d.get("code") or "").lower()
-        name = (d.get("series_name") or d.get("name") or "").lower()
-        if code == "pm" or ("pmi" in name and "new orders" not in name):
-            pick = d
-            break
-    if pick is None and docs:
-        pick = docs[0]
-    if pick is None:
-        raise RuntimeError("DBnomics ISM: no series found")
-    out = []
-    for p, v in zip(pick.get("period", []), pick.get("value", [])):
-        if v in (None, "NA"):
-            continue
-        try:
-            d = dt.date.fromisoformat(p if len(p) == 10 else p + "-01")
-            out.append((d, float(v)))
-        except ValueError:
-            continue
-    if not out:
-        raise RuntimeError("DBnomics ISM: empty series")
     return out
 
 
@@ -250,7 +203,11 @@ def fetch_nyfed_prob() -> list[tuple[dt.date, float]]:
                 y, m, d, *_ = xlrd.xldate_as_tuple(dv, book.datemode)
                 date = dt.date(y, m, d)
             else:
-                date = parse_date(str(dv))
+                sv = str(dv).strip()
+                try:
+                    date = dt.datetime.strptime(sv, "%d-%b-%Y").date()
+                except ValueError:
+                    date = parse_date(sv)
             prob = float(pv)
             if prob <= 1.0:
                 prob *= 100.0
@@ -266,19 +223,8 @@ def fetch_series(spec: dict) -> list[tuple[dt.date, float]]:
     src = spec["src"]
     if src == "FRED":
         return fetch_fred(spec["id"], spec["start"])
-    if src == "STOOQ":
-        try:
-            return fetch_stooq(spec["symbol"])
-        except Exception as e:  # noqa: BLE001
-            fb = spec.get("fallback")
-            if fb and fb.startswith("YAHOO:"):
-                print(f"  stooq failed ({e}); trying Yahoo {fb[6:]}")
-                return fetch_yahoo(fb[6:])
-            raise
     if src == "YAHOO":
         return fetch_yahoo(spec["symbol"])
-    if src == "DBNOMICS_ISM":
-        return fetch_dbnomics_ism()
     if src == "NYFED":
         return fetch_nyfed_prob()
     raise RuntimeError(f"unknown source {src}")
@@ -352,9 +298,7 @@ def main() -> int:
         "generator": "pipeline/build_data.py",
         "sources": {
             "FRED": "https://fred.stlouisfed.org/",
-            "STOOQ": "https://stooq.com/",
             "YAHOO": "https://finance.yahoo.com/",
-            "DBNOMICS_ISM": "https://db.nomics.world/ISM",
             "NYFED": "https://www.newyorkfed.org/research/capital_markets/ycfaq.html",
         },
         "summary": {"ok": n_ok, "failed": n_fail, "fred_ok": core_ok, "fred_total": core_total},
