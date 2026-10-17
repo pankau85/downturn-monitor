@@ -142,7 +142,7 @@
     { id: 'oil', pillar: 'rates', name: 'WTI crude oil, year-over-year change', short: 'Oil shock', weight: 15, inputs: ['DCOILWTICO'], unit: '%', fmt: F.yoy, lag: 1,
       transform: S => changeDays(S.DCOILWTICO, 365, true), anchors: [0, 25, 50, 75, 100],
       rule: '≤ 0% → 1, +25% → 2, +50% → 3, +75% → 4, ≥ +100% → 5.',
-      why: 'Hamilton’s oil-shock literature: nine of the last eleven US recessions were preceded by a sharp rise in oil prices. A one-sided test; falling oil is read through growth indicators instead.' },
+      why: 'Hamilton’s oil-shock research finds that almost every post-war US recession was preceded by a sharp rise in oil prices. A one-sided test; falling oil is read through the growth indicators instead.' },
     // ---------------- Credit & financial conditions ----------------
     { id: 'hy_oas', pillar: 'credit', name: 'High-yield OAS, level and 3-month change', short: 'HY spreads', weight: 25, inputs: ['BAMLH0A0HYM2'], unit: '%', fmt: F.pct2, lag: 1,
       transform: S => S.BAMLH0A0HYM2, anchors: [3.25, 4.0, 5.0, 6.5, 8.5],
@@ -252,7 +252,7 @@
   ];
 
   const REFERENCE = [
-    { id: 'recprob', name: 'Smoothed recession probability (Chauvet–Piger)', input: 'RECPROUSM156N', fmt: F.pct1, note: 'A dynamic-factor Markov-switching model on the four NBER coincident series. Readings above 20% have only occurred in recessions. Published with a two-month lag.' },
+    { id: 'recprob', name: 'Smoothed recession probability (Chauvet–Piger)', input: 'RECPROUSM156N', fmt: F.pct1, note: 'A dynamic-factor Markov-switching model on the four NBER coincident series (Chauvet and Piger). The authors treat three consecutive months above 80% as the start of a recession and three below 20% as its end. Published with a two-month lag.' },
     { id: 'nyfed', name: 'NY Fed yield-curve recession probability, 12 months ahead', input: 'NYFEDPROB', fmt: F.pct1, forward: 12, note: 'Probit model on the 10-year minus 3-month spread, published monthly. The value shown is the latest estimate: the probability that the economy is in recession twelve months from the most recent spread observation.' },
   ];
 
