@@ -15,11 +15,11 @@ Thirty indicators across six pillars are scored on a continuous 1–5 scale and 
 
 ```
 .github/workflows/update-data.yml   GitHub Actions schedule: pulls every series twice each weekday morning
-pipeline/build_data.py              the fetcher (standard library only; FRED + Stooq/Yahoo + DBnomics + NY Fed)
+pipeline/build_data.py              the fetcher (standard library only; FRED + Yahoo Finance + NY Fed)
 data/data.json                      the output the dashboard reads (committed by the workflow)
 data/latest.csv, data/status.json   human-readable snapshot and freshness sidecar
 site/                               the dashboard: template.html + styles.css + engine.js + app.js
-pipeline/build_site.py              inlines everything into one self-contained site/downturn-monitor.html
+pipeline/build_site.py              inlines everything into one self-contained HTML file (index.html, downturn-monitor.html)
 ```
 
 Three ways to open the dashboard, all reading the same `data/data.json`:
