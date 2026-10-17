@@ -1,0 +1,1191 @@
+<meta charset="utf-8">
+<title>Downturn Monitor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap">
+<style>
+/* Layout: a monitoring console. One loud instrument (the composite gauge) above a quiet, left-aligned grid
+   of pillar cards and tables; Archivo's width axis carries the hierarchy (wide for the reading, narrow for data). */
+:root {
+  --bg: #f2f4f7; --surface: #ffffff; --surface-2: #e9edf2; --surface-3: #dde3ea;
+  --line: #d8dee6; --line-2: #bfc9d4;
+  --ink: #121a23; --ink-2: #4a5664; --ink-3: #78848f;
+  --accent: #2d5d8f; --accent-ink: #ffffff; --accent-soft: rgba(45, 93, 143, .12); --lens2: #7a4fc9;
+  --l1: #0f6a3c; --l2: #80a81c; --l3: #f3c22d; --l4: #e2701c; --l5: #bd2d29;
+  --rec: rgba(18, 26, 35, .08);
+  --shadow: 0 1px 2px rgba(18, 26, 35, .05), 0 10px 28px -16px rgba(18, 26, 35, .25);
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1319; --surface: #161c24; --surface-2: #1d2530; --surface-3: #27313d;
+    --line: #293440; --line-2: #3b4856;
+    --ink: #e8edf3; --ink-2: #aeb9c5; --ink-3: #7f8b98;
+    --accent: #86b4ea; --accent-ink: #0e1319; --accent-soft: rgba(134, 180, 234, .16); --lens2: #a88ae8;
+    --l1: #169d6b; --l2: #86b124; --l3: #f9d660; --l4: #f59c3c; --l5: #d63f3a;
+    --rec: rgba(232, 237, 243, .07);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px -16px rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1319; --surface: #161c24; --surface-2: #1d2530; --surface-3: #27313d;
+  --line: #293440; --line-2: #3b4856;
+  --ink: #e8edf3; --ink-2: #aeb9c5; --ink-3: #7f8b98;
+  --accent: #86b4ea; --accent-ink: #0e1319; --accent-soft: rgba(134, 180, 234, .16); --lens2: #a88ae8;
+  --l1: #169d6b; --l2: #86b124; --l3: #f9d660; --l4: #f59c3c; --l5: #d63f3a;
+  --rec: rgba(232, 237, 243, .07);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px -16px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px;
+  -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4 { margin: 0; font-weight: 600; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: 22px; font-stretch: 105%; letter-spacing: -.01em; }
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
+p { margin: 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.small { font-size: 12px; }
+.wrap { max-width: 1280px; margin: 0 auto; }
+.hidden-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- header ---------- */
+.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; padding-block: 22px 14px; }
+.top .sub { color: var(--ink-2); margin-top: 4px; font-size: 13px; }
+.top-right { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-weight: 500; line-height: 1.2; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.sm { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn svg { width: 14px; height: 14px; }
+.freshness { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--l1); display: inline-block; }
+.dot.warn { background: var(--l3); }
+.dot.bad { background: var(--l5); }
+
+/* ---------- status banner ---------- */
+.banner { border-radius: var(--radius); padding: 12px 16px; margin-block: 8px 14px; display: flex; gap: 12px; align-items: flex-start; font-size: 13px; }
+.banner.info { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.banner.warn { background: color-mix(in srgb, var(--l3) 18%, transparent); border: 1px solid color-mix(in srgb, var(--l3) 45%, transparent); }
+.banner.err { background: color-mix(in srgb, var(--l5) 14%, transparent); border: 1px solid color-mix(in srgb, var(--l5) 40%, transparent); }
+.banner .grow { flex: 1; min-width: 0; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 16px; align-items: stretch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+.card.pad { padding: 18px 20px; }
+.gauge-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 20px 18px; }
+.gauge-card svg { width: 100%; max-width: 340px; height: auto; display: block; }
+.gauge-score { font-size: 58px; font-weight: 600; line-height: 1; letter-spacing: -.02em; margin-top: -104px; font-stretch: 100%; position: relative; }
+.gauge-level { font-size: 20px; font-weight: 600; margin-top: 6px; display: inline-flex; align-items: center; gap: 8px; }
+.gauge-level .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.gauge-desc { color: var(--ink-2); margin-top: 6px; max-width: 34ch; font-size: 13px; }
+.gauge-deltas { display: flex; gap: 18px; margin-top: 14px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; justify-content: center; }
+.gauge-deltas b { color: var(--ink); font-weight: 600; }
+.hero-side { display: grid; grid-template-rows: auto auto 1fr; gap: 14px; padding: 18px 20px; }
+.lenses { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lens { display: grid; gap: 6px; }
+.lens-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.lens-head .t { font-weight: 600; }
+.lens-head .s { font-size: 13px; color: var(--ink-2); }
+.meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; height: 10px; }
+.meter i { display: block; border-radius: 3px; background: var(--surface-3); position: relative; overflow: hidden; }
+.meter i b { position: absolute; inset: 0; width: var(--fill, 0%); display: block; }
+.meter i:nth-child(1) b { background: var(--l1); } .meter i:nth-child(2) b { background: var(--l2); } .meter i:nth-child(3) b { background: var(--l3); } .meter i:nth-child(4) b { background: var(--l4); } .meter i:nth-child(5) b { background: var(--l5); }
+.meter-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); }
+.diffusion { display: grid; gap: 6px; }
+.diffusion .bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; gap: 2px; background: transparent; }
+.diffusion .bar span { display: block; height: 100%; min-width: 0; }
+.diffusion .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); }
+.diffusion .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+.summary { font-size: 14px; color: var(--ink); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 12px; }
+.summary .ind { color: var(--accent); cursor: pointer; }
+.summary .ind:hover { text-decoration: underline; }
+
+.l1 { --lv: var(--l1); } .l2 { --lv: var(--l2); } .l3 { --lv: var(--l3); } .l4 { --lv: var(--l4); } .l5 { --lv: var(--l5); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px 2px 6px; border-radius: 999px; font-size: 12px; font-weight: 600; background: color-mix(in srgb, var(--lv) 16%, transparent); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lv); flex: none; }
+.chip.na { --lv: var(--ink-3); background: var(--surface-2); color: var(--ink-3); font-weight: 500; }
+
+/* ---------- control row ---------- */
+.controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; margin-block: 18px 12px; }
+.ctl-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ctl-label { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 6px 11px; font-size: 12.5px; font-weight: 500; color: var(--ink-2); border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.asof { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.asof input[type="range"] { width: min(360px, 60vw); accent-color: var(--accent); }
+.asof .when { font-weight: 600; min-width: 11ch; font-variant-numeric: tabular-nums; }
+.asof-banner { display: none; }
+body.timetravel .asof-banner { display: flex; }
+
+/* ---------- sections ---------- */
+section { margin-block: 14px; }
+.sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px; padding: 16px 20px 4px; }
+.sec-head p { color: var(--ink-2); font-size: 13px; max-width: 70ch; }
+.chart-wrap { position: relative; padding: 6px 12px 10px; }
+.chart-wrap svg { display: block; width: 100%; height: auto; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); padding: 0 20px 4px; align-items: center; }
+.legend-row .key { display: inline-flex; align-items: center; gap: 6px; }
+.legend-row .key i { width: 16px; height: 0; border-top: 2px solid var(--kc, var(--ink)); display: inline-block; }
+.legend-row .key i.box { width: 12px; height: 10px; border: 0; background: var(--kc); opacity: .9; border-radius: 2px; }
+.legend-row button.key { border: 0; background: transparent; padding: 2px 4px; border-radius: 4px; color: inherit; }
+.legend-row button.key[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: var(--shadow); min-width: 150px; z-index: 5; display: none; }
+.tip .d { color: var(--ink-3); margin-bottom: 4px; }
+.tip .r { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
+.tip .r i { width: 12px; height: 0; border-top: 2px solid var(--kc); display: inline-block; margin-right: 6px; vertical-align: 3px; }
+.tip .r b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- pillar grid ---------- */
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.pillar { display: flex; flex-direction: column; min-width: 0; }
+.pillar-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 14px 16px 6px; }
+.pillar-head .name { font-weight: 600; font-size: 14px; }
+.pillar-head .w { color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+.pillar-score { text-align: right; }
+.pillar-score .v { font-size: 26px; font-weight: 600; line-height: 1; }
+.pillar-spark { padding: 0 16px; height: 44px; }
+.pillar-spark svg { width: 100%; height: 44px; display: block; }
+.pillar-list { list-style: none; margin: 8px 0 0; padding: 0 6px 8px; border-top: 1px solid var(--line); }
+.pillar-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+.pillar-list li:hover { background: var(--surface-2); }
+.pillar-list .n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.pillar-list .v { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pillar-list .v small { color: var(--ink-3); margin-left: 4px; }
+.pillar-list li.off { opacity: .45; }
+.arrow { font-size: 11px; margin-left: 4px; }
+.arrow.up { color: var(--l5); } .arrow.down { color: var(--l1); }
+
+/* ---------- tables ---------- */
+.tbl-wrap { overflow-x: auto; padding: 0 8px 10px; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th, .tbl td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.tbl th { font-size: 11.5px; color: var(--ink-3); font-weight: 600; text-transform: none; letter-spacing: 0; position: sticky; top: 0; background: var(--surface); cursor: pointer; user-select: none; }
+.tbl th[aria-sort="ascending"]::after { content: " ↑"; } .tbl th[aria-sort="descending"]::after { content: " ↓"; }
+.tbl td.r, .tbl th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl tr.row { cursor: pointer; }
+.tbl tr.row:hover td { background: var(--surface-2); }
+.tbl tr.off td { opacity: .45; }
+.tbl .name { white-space: normal; min-width: 180px; }
+.pct { display: inline-grid; grid-template-columns: 56px auto; align-items: center; gap: 6px; }
+.pct i { height: 6px; background: var(--surface-3); border-radius: 3px; position: relative; display: block; }
+.pct i b { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink-3); border-radius: 3px; }
+.ep { font-size: 12px; color: var(--ink-3); }
+
+/* ---------- reference cards ---------- */
+.ref-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 0 20px 18px; }
+.ref { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; }
+.ref .t { font-weight: 600; grid-column: 1 / -1; }
+.ref .v { font-size: 24px; font-weight: 600; }
+.ref .note { grid-column: 1 / -1; color: var(--ink-2); font-size: 12.5px; }
+.ref svg { width: 140px; height: 36px; }
+
+/* ---------- methodology ---------- */
+.prose { padding: 4px 20px 18px; max-width: 76ch; color: var(--ink); font-size: 13.5px; }
+.prose p + p { margin-top: 8px; }
+.prose ul { margin: 6px 0 0 18px; padding: 0; }
+.prose li + li { margin-top: 4px; }
+.levels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 6px 20px 14px; }
+.level-card { border-radius: 8px; padding: 10px 12px; background: color-mix(in srgb, var(--lv) 14%, transparent); border-top: 4px solid var(--lv); min-width: 0; }
+.level-card .n { font-size: 20px; font-weight: 600; }
+.level-card .t { font-weight: 600; }
+.level-card .r { font-size: 11.5px; color: var(--ink-2); }
+.level-card .d { font-size: 12px; margin-top: 4px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+
+/* ---------- drawer ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(8, 12, 18, .45); z-index: 40; display: none; }
+.scrim.open { display: block; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(640px, 100%); background: var(--surface); z-index: 50; transform: translateX(104%); transition: transform .28s cubic-bezier(.2, .7, .2, 1); overflow-y: auto; box-shadow: -12px 0 40px -20px rgba(0, 0, 0, .5); padding: 0 0 32px;
+  padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.drawer.open { transform: none; }
+.drawer-head { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; z-index: 2; }
+.drawer-head h2 { font-size: 16px; }
+.drawer-head .crumb { font-size: 12px; color: var(--ink-3); margin-bottom: 2px; }
+.drawer-body { padding: 16px 20px; display: grid; gap: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.kpi { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.kpi .l { font-size: 11.5px; color: var(--ink-3); }
+.kpi .v { font-size: 20px; font-weight: 600; margin-top: 2px; }
+.kpi .v.sm { font-size: 15px; }
+.rule-box { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; }
+.rule-box b { display: block; margin-bottom: 2px; }
+.anchors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.anchors label { display: grid; gap: 3px; font-size: 11px; color: var(--ink-3); }
+.anchors input { width: 100%; border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 6px; background: var(--surface); font-size: 13px; font-variant-numeric: tabular-nums; }
+.anchors label span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; background: var(--lv); vertical-align: -1px; }
+.row-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.drawer .chart-wrap { padding: 0; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.switch input { accent-color: var(--accent); width: 16px; height: 16px; }
+.winput { width: 72px; border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 8px; background: var(--surface); font-variant-numeric: tabular-nums; }
+
+/* ---------- settings ---------- */
+.modal { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal.open { display: flex; }
+.modal .box { background: var(--surface); border-radius: 12px; width: min(760px, 100%); max-height: calc(100% - 32px); overflow: auto; box-shadow: var(--shadow); border: 1px solid var(--line); }
+.modal .box-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); }
+.modal .box-body { padding: 16px 18px; display: grid; gap: 18px; }
+.wrow { display: grid; grid-template-columns: 200px 1fr 60px; gap: 12px; align-items: center; font-size: 13px; }
+.wrow input[type="range"] { width: 100%; accent-color: var(--accent); }
+.wrow .pw { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.ind-toggles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 16px; font-size: 13px; }
+textarea.json { width: 100%; min-height: 90px; border: 1px solid var(--line-2); border-radius: 8px; padding: 8px; background: var(--surface-2); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); }
+
+footer { margin-top: 26px; color: var(--ink-3); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+.toast { position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; z-index: 70; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+.skeleton { color: var(--ink-3); padding: 40px 20px; text-align: center; }
+.loading-dim { opacity: .55; transition: opacity .2s; }
+
+@media (max-width: 980px) {
+  .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero { grid-template-columns: 1fr; }
+  .levels { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .pillars { grid-template-columns: 1fr; }
+  .lenses { grid-template-columns: 1fr; }
+  .ref-grid { grid-template-columns: 1fr; }
+  .levels { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .wrow { grid-template-columns: 1fr 1fr 48px; }
+  .wrow > :first-child { grid-column: 1 / -1; }
+  .ind-toggles { grid-template-columns: 1fr; }
+  .gauge-score { font-size: 50px; margin-top: -92px; }
+  h1 { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer { transition: none; }
+  .needle { transition: none !important; }
+}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Downturn Monitor</h1>
+      <p class="sub">Recession and correction early-warning board for the US economy and markets. Thirty public indicators, six pillars, one score from 1 (benign) to 5 (severe).</p>
+    </div>
+    <div class="top-right">
+      <div class="freshness" id="freshness"><span class="dot warn"></span>Loading data…</div>
+      <button class="btn" id="btnTheme" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 12.5v-11a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg><span>Theme: auto</span></button>
+      <button class="btn" id="btnSettings" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="6" cy="4" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="8" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/><circle cx="5" cy="12" r="1.8" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"/></svg><span>Weights &amp; rules</span></button>
+      <button class="btn" id="btnExport" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>Download CSV</span></button>
+    </div>
+  </header>
+
+  <div id="dataBanner" class="banner warn" hidden></div>
+  <div id="loading" class="card skeleton">Loading the latest data…</div>
+  <div id="loadError" class="banner err" hidden>
+    <div class="grow"><b>Data unavailable.</b> <span id="loadErrorMsg"></span></div>
+    <label class="btn sm">Load data file<input type="file" id="fileInput" accept=".json,application/json" hidden></label>
+  </div>
+
+  <main id="main" hidden>
+    <section class="hero">
+      <div class="card gauge-card">
+        <div id="gauge"></div>
+        <div class="gauge-score" id="gaugeScore">–</div>
+        <div class="gauge-level" id="gaugeLevel">–</div>
+        <p class="gauge-desc" id="gaugeDesc"></p>
+        <div class="gauge-deltas" id="gaugeDeltas"></div>
+      </div>
+      <div class="card hero-side">
+        <div class="lenses" id="lenses"></div>
+        <div class="diffusion" id="diffusion"></div>
+        <div class="summary" id="summary"></div>
+      </div>
+    </section>
+
+    <div class="controls" role="toolbar" aria-label="View controls">
+      <div class="ctl-group asof">
+        <span class="ctl-label">Viewing</span>
+        <span class="when" id="asofWhen">Today</span>
+        <input type="range" id="asofSlider" min="0" max="100" value="100" aria-label="View the board as of an earlier month">
+        <button class="btn sm" id="btnToday" type="button" hidden>Back to today</button>
+      </div>
+      <div class="ctl-group">
+        <span class="ctl-label">Chart range</span>
+        <div class="seg" id="rangeSeg" role="group" aria-label="Chart range">
+          <button type="button" data-range="1Y" aria-pressed="false">1Y</button>
+          <button type="button" data-range="3Y" aria-pressed="false">3Y</button>
+          <button type="button" data-range="5Y" aria-pressed="true">5Y</button>
+          <button type="button" data-range="10Y" aria-pressed="false">10Y</button>
+          <button type="button" data-range="20Y" aria-pressed="false">20Y</button>
+          <button type="button" data-range="Max" aria-pressed="false">Max</button>
+        </div>
+      </div>
+    </div>
+    <div id="asofBanner" class="banner info" hidden></div>
+    <div id="customNote" class="banner info" hidden><div class="grow">Custom weights or thresholds are in use on this browser. Open <b>Weights &amp; rules</b> to review or reset them.</div></div>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Composite score since 1990</h2><p>Monthly readings built from the data available at each month end, with release lags applied. The final point is today’s live reading.</p></div>
+      </div>
+      <div class="legend-row" id="histLegend"></div>
+      <div class="chart-wrap" id="histChart"></div>
+    </section>
+
+    <section class="pillars" id="pillars" aria-label="Pillar scores"></section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>All indicators</h2><p>Click a row for the chart, the rule and the thresholds. Percentile is the latest value’s rank within its own trailing ten years. Weight is the indicator’s effective share of the composite.</p></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="tbl">
+          <thead><tr>
+            <th data-key="name">Indicator</th><th data-key="pillar">Pillar</th><th class="r">Latest</th><th>As of</th><th class="r" data-key="delta">Score Δ 1m</th><th class="r" data-key="score">Score</th><th>Level</th><th data-key="pct">10-yr percentile</th><th class="r" data-key="weight">Weight</th>
+          </tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Track record</h2><p>How the composite read before and during each NBER recession since 1990, and how high it got during market stress episodes that did not become recessions. Historical readings use data as revised today, except the Sahm rule, which is the real-time series.</p></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl"><thead><tr><th>Recession (NBER)</th><th class="r">12 months before</th><th class="r">6 months before</th><th class="r">3 months before</th><th class="r">Start month</th><th class="r">Peak during</th><th>First High reading</th></tr></thead><tbody id="btRecessions"></tbody></table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl"><thead><tr><th>Stress episode without a recession</th><th>Window</th><th class="r">Peak composite</th></tr></thead><tbody id="btStress"></tbody></table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head">
+        <div><h2>Reference models</h2><p>Two published recession-probability models, shown for context. They are not part of the composite.</p></div>
+      </div>
+      <div class="ref-grid" id="refGrid"></div>
+    </section>
+
+    <section class="card">
+      <div class="sec-head"><div><h2>How the score works</h2></div></div>
+      <div class="levels">
+        <div class="level-card l1"><div class="n">1</div><div class="t">Benign</div><div class="r">composite 1.0 – 1.7</div><div class="d">Expansion intact. Few indicators elevated.</div></div>
+        <div class="level-card l2"><div class="n">2</div><div class="t">Guarded</div><div class="r">1.7 – 2.3</div><div class="d">Late-cycle signs. Worth watching, not acting on.</div></div>
+        <div class="level-card l3"><div class="n">3</div><div class="t">Elevated</div><div class="r">2.3 – 3.0</div><div class="d">Broad slowdown or market-stress signals. Corrections are typical here.</div></div>
+        <div class="level-card l4"><div class="n">4</div><div class="t">High</div><div class="r">3.0 – 3.7</div><div class="d">Recession or major correction risk high; several pillars stressed.</div></div>
+        <div class="level-card l5"><div class="n">5</div><div class="t">Severe</div><div class="r">3.7 – 5.0</div><div class="d">Recession or major correction under way or imminent.</div></div>
+      </div>
+      <div class="prose">
+        <p>Every indicator is converted to a continuous score from 1 to 5 using five thresholds: the values at which it would read exactly 1, 2, 3, 4 and 5, with straight-line interpolation in between. The thresholds come from the published literature on each indicator (the Sahm rule’s 0.50 pp, the Chicago Fed’s −0.70, the conventional 10% correction and 20% bear market) and from how each series behaved around past recessions. A few indicators use a richer rule: the yield curve is cycle-aware (the danger window is the re-steepening after an inversion), credit spreads take the higher of a level score and a momentum score, CPI is two-sided, and consumer sentiment and card delinquencies blend level and change. Individual indicators are labelled on equal bands (Benign below 1.8, Guarded to 2.6, Elevated to 3.4, High to 4.2, Severe above).</p>
+        <p>Indicators are averaged within each pillar using the weights shown, and pillars are averaged into the composite. Averaging thirty scores compresses the range, so the composite, the two lenses and the pillars use the calibrated bands above: on 1990–2026 history every recession reached High or Severe, while the market-stress episodes that did not become recessions topped out at Elevated. The gauge gives each band an equal arc and marks the hand-over values. Indicators with no data drop out and the remaining weights are rescaled; the coverage figure tells you how much of the intended weight is in play. The Economy lens averages the rates, labor, growth and consumer pillars; the Markets lens averages credit conditions and market stress.</p>
+        <p>The composite is a prior, not a forecast. No single indicator has a clean record, and the set as a whole has read Elevated in several episodes that ended without a recession (see the track record above). Its job is to tell you how much of the usual pre-downturn pattern is present, and which pieces are driving it.</p>
+      </div>
+      <div class="two-col">
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pillar</th><th class="r">Weight</th><th>Lens</th><th>Indicators and weights within the pillar</th></tr></thead><tbody id="weightsTbl"></tbody></table></div>
+        <div class="prose">
+          <h3>Known limitations</h3>
+          <ul>
+            <li>The Conference Board LEI and consumer confidence are proprietary and not included; the OECD and Philadelphia Fed leading indexes are candidates for a later version.</li>
+            <li>ISM’s PMI has no free machine-readable source and is not included; the regional Fed surveys cover the same ground.</li>
+            <li>FRED carries only the trailing three years of the ICE BofA high-yield and investment-grade indexes, so the Baa corporate spread supplies the long credit history. S&amp;P 500 and MOVE history come from Yahoo Finance; if that feed fails, equity indicators fall back to FRED’s ten years of S&amp;P 500 data.</li>
+            <li>Historical readings use today’s revised data (except the real-time Sahm rule) and assumed publication lags, so the back-test is cleaner than a true real-time test would be.</li>
+            <li>Market data refreshes each morning for the prior close; monthly releases appear after the second daily run on release days.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sec-head"><div><h3>Data status</h3><p>Every input series, its source, and the date of its last observation. “Later than usual” means the series is older than its normal release cadence at the time the data file was built.</p></div></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Series</th><th>Description</th><th>Frequency</th><th>Source</th><th class="r">Last observation</th><th>Status</th></tr></thead><tbody id="dataStatus"></tbody></table></div>
+    </section>
+
+    <footer>
+      <span>Data file generated <span id="genStamp"></span>.</span>
+      <span>Sources: FRED (Federal Reserve Bank of St. Louis), ICE BofA and Moody’s series via FRED, Chicago Fed, St. Louis Fed, New York Fed, Dallas Fed, BLS, BEA, Census, Federal Reserve Board, U. Michigan, CBOE, Yahoo Finance.</span>
+      <a id="repoLink" href="#" target="_blank" rel="noopener">Pipeline and source code</a>
+    </footer>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Indicator detail">
+  <div class="drawer-head">
+    <div><div class="crumb" id="drawerCrumb"></div><h2 id="drawerTitle"></h2></div>
+    <button class="btn sm" id="drawerClose" type="button" aria-label="Close">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+<div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="box">
+    <div class="box-head"><h2 id="settingsTitle">Weights &amp; rules</h2><button class="btn sm" id="settingsClose" type="button">Close</button></div>
+    <div class="box-body" id="settingsBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.DM_CONFIG = {"liveUrl": "data/data.json", "repoUrl": "https://github.com/pankau85/downturn-monitor"};
+</script>
+<script>
+/* Downturn Monitor — scoring engine (pure functions, no DOM)
+ * Works in the browser (window.DM) and in Node (module.exports) so the page's
+ * logic can be unit-tested against the real data file.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.DM = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const MS_DAY = 86400000;
+  const dayToDate = d => new Date(d * MS_DAY);
+  const dateToDay = date => Math.floor(date.getTime() / MS_DAY);
+  const ymdToDay = s => { const [y, m, d] = s.split('-').map(Number); return Math.floor(Date.UTC(y, m - 1, d) / MS_DAY); };
+  const dayToYmd = d => dayToDate(d).toISOString().slice(0, 10);
+  const monthEndDay = (y, m) => Math.floor(Date.UTC(y, m, 0) / MS_DAY); // m is 1..12 → last day of that month
+  const addMonths = (day, k) => { const dt = dayToDate(day); const y = dt.getUTCFullYear(), m = dt.getUTCMonth() + 1 + k; return monthEndDay(y + Math.floor((m - 1) / 12), ((m - 1) % 12 + 12) % 12 + 1); };
+
+  // ---------- series primitives: {t:[days asc], v:[numbers]} ----------
+  function idxAt(s, day) { // index of last t <= day, or -1
+    let lo = 0, hi = s.t.length - 1, ans = -1;
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (s.t[mid] <= day) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
+    return ans;
+  }
+  function valueAt(s, day, maxGapDays) {
+    if (!s || !s.t.length) return null;
+    const i = idxAt(s, day);
+    if (i < 0) return null;
+    if (maxGapDays != null && day - s.t[i] > maxGapDays) return null;
+    return { t: s.t[i], v: s.v[i], i };
+  }
+  const last = s => (s && s.t.length) ? { t: s.t[s.t.length - 1], v: s.v[s.v.length - 1] } : null;
+  const mk = (t, v) => ({ t, v });
+  function mapSeries(s, fn) { const t = [], v = []; for (let i = 0; i < s.t.length; i++) { const r = fn(s.v[i], i, s); if (r != null && Number.isFinite(r)) { t.push(s.t[i]); v.push(r); } } return mk(t, v); }
+  function slice(s, fromDay, toDay) { const t = [], v = []; for (let i = 0; i < s.t.length; i++) { if (s.t[i] >= fromDay && (toDay == null || s.t[i] <= toDay)) { t.push(s.t[i]); v.push(s.v[i]); } } return mk(t, v); }
+  function upTo(s, day) { const i = idxAt(s, day); return i < 0 ? mk([], []) : mk(s.t.slice(0, i + 1), s.v.slice(0, i + 1)); }
+
+  // index-based changes (for regular monthly/weekly/quarterly series)
+  function pctChangeK(s, k) { const t = [], v = []; for (let i = k; i < s.t.length; i++) { const b = s.v[i - k]; if (b) { t.push(s.t[i]); v.push((s.v[i] / b - 1) * 100); } } return mk(t, v); }
+  function diffK(s, k) { const t = [], v = []; for (let i = k; i < s.t.length; i++) { t.push(s.t[i]); v.push(s.v[i] - s.v[i - k]); } return mk(t, v); }
+  // date-based change (for irregular daily series): value now minus/over value `days` earlier
+  function changeDays(s, days, pct) { const t = [], v = []; for (let i = 0; i < s.t.length; i++) { const r = valueAt(s, s.t[i] - days, Math.max(10, days * 0.2)); if (r && r.i < i) { t.push(s.t[i]); v.push(pct ? (s.v[i] / r.v - 1) * 100 : s.v[i] - r.v); } } return mk(t, v); }
+  function rollMean(s, n) { const t = [], v = []; let sum = 0; for (let i = 0; i < s.t.length; i++) { sum += s.v[i]; if (i >= n) sum -= s.v[i - n]; if (i >= n - 1) { t.push(s.t[i]); v.push(sum / n); } } return mk(t, v); }
+  function rollMax(s, n) { const t = [], v = []; for (let i = 0; i < s.t.length; i++) { let m = -Infinity; for (let j = Math.max(0, i - n + 1); j <= i; j++) if (s.v[j] > m) m = s.v[j]; if (i >= Math.min(n, 20) - 1) { t.push(s.t[i]); v.push(m); } } return mk(t, v); }
+  function rollMin(s, n) { const t = [], v = []; for (let i = 0; i < s.t.length; i++) { let m = Infinity; for (let j = Math.max(0, i - n + 1); j <= i; j++) if (s.v[j] < m) m = s.v[j]; if (i >= Math.min(n, 20) - 1) { t.push(s.t[i]); v.push(m); } } return mk(t, v); }
+  // combine on a's grid: fn(a_i, b at or before t_i)
+  function combine(a, b, fn, maxGap) { const t = [], v = []; for (let i = 0; i < a.t.length; i++) { const r = valueAt(b, a.t[i], maxGap); if (r) { const x = fn(a.v[i], r.v); if (x != null && Number.isFinite(x)) { t.push(a.t[i]); v.push(x); } } } return mk(t, v); }
+  function percentileOf(s, day, lookbackDays) { // percentile rank (0-100) of value at day within trailing window
+    const r = valueAt(s, day); if (!r) return null; const from = day - lookbackDays; let n = 0, below = 0, eq = 0;
+    for (let j = r.i; j >= 0 && s.t[j] >= from; j--) { n++; if (s.v[j] < r.v) below++; else if (s.v[j] === r.v) eq++; }
+    return n > 1 ? 100 * (below + 0.5 * eq) / n : null;
+  }
+
+  // ---------- scoring ----------
+  // anchors: value at score 1,2,3,4,5 (monotone increasing or decreasing). Linear between anchors, clamped.
+  function scoreFromAnchors(x, A) {
+    if (x == null || !Number.isFinite(x)) return null;
+    const inc = A[4] > A[0];
+    const a = inc ? A : A.map(v => -v); const y = inc ? x : -x;
+    if (y <= a[0]) return 1; if (y >= a[4]) return 5;
+    for (let k = 0; k < 4; k++) if (y <= a[k + 1]) { const span = a[k + 1] - a[k]; return span > 0 ? (k + 1) + (y - a[k]) / span : k + 2; }
+    return 5;
+  }
+  const scoreSeries = (s, A) => mapSeries(s, x => scoreFromAnchors(x, A));
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  const maxSeries = (a, b) => combine(a, b, (x, y) => Math.max(x, y), 45);
+  const meanSeries = (a, b) => combine(a, b, (x, y) => (x + y) / 2, 45);
+
+  // Cycle-aware yield-curve scorer. Inverted → 4.0–4.8 by depth. Sustained re-steepening after a
+  // material inversion → 5 for ~9 months, fading to the level score by month 18. Otherwise level-based.
+  function curveScore(spread, opts) {
+    const o = Object.assign({ matDays: 40, minRun: 10, lookback: 730, window1: 270, window2: 540, levelAnchors: [1.75, 1.0, 0.4, 0.0, -0.5] }, opts || {});
+    const t = [], v = [], meta = [];
+    let invRun = 0, posRun = 0, lastInvEnd = null, materialAtEnd = false;
+    const invDays = []; // days with inversion (for trailing count)
+    for (let i = 0; i < spread.t.length; i++) {
+      const d = spread.t[i], x = spread.v[i];
+      if (x < 0) { invRun++; posRun = 0; invDays.push(d); } else { posRun++; if (invRun >= o.minRun) { // a real inversion run (not a one-week blip) just ended
+          while (invDays.length && invDays[0] < d - o.lookback) invDays.shift();
+          materialAtEnd = invDays.length >= o.matDays; lastInvEnd = d; } invRun = 0; }
+      while (invDays.length && invDays[0] < d - o.lookback) invDays.shift();
+      let score, state;
+      if (x < 0) { score = clamp(4.0 + 0.8 * Math.min(1, -x / 1.0), 4, 4.8); state = 'inverted'; }
+      else if (lastInvEnd != null && materialAtEnd && d - lastInvEnd <= o.window2) {
+        const since = d - lastInvEnd; const lvl = scoreFromAnchors(x, o.levelAnchors);
+        if (since <= o.window1) { score = 5; state = 'post-inversion window'; }
+        else { const f = (since - o.window1) / (o.window2 - o.window1); score = 5 + (lvl - 5) * f; state = 'post-inversion fading'; }
+      } else { score = scoreFromAnchors(x, o.levelAnchors); state = 'normal'; }
+      t.push(d); v.push(score); meta.push(state);
+    }
+    return { score: mk(t, v), state: meta, lastInvEnd, materialAtEnd };
+  }
+
+  // ---------- indicator catalogue ----------
+  const F = {
+    pct1: x => (x == null ? '–' : x.toFixed(1) + '%'),
+    pct2: x => (x == null ? '–' : x.toFixed(2) + '%'),
+    pp2: x => (x == null ? '–' : (x >= 0 ? '+' : '') + x.toFixed(2) + ' pp'),
+    pp1: x => (x == null ? '–' : (x >= 0 ? '+' : '') + x.toFixed(1) + ' pp'),
+    num1: x => (x == null ? '–' : x.toFixed(1)),
+    num2: x => (x == null ? '–' : x.toFixed(2)),
+    idx: x => (x == null ? '–' : x.toFixed(1)),
+    k: x => (x == null ? '–' : (x >= 0 ? '+' : '') + Math.round(x) + 'k'),
+    spct: x => (x == null ? '–' : (x >= 0 ? '+' : '') + x.toFixed(1) + '%'),
+    yoy: x => (x == null ? '–' : (x >= 0 ? '+' : '') + x.toFixed(1) + '% y/y'),
+  };
+
+  const PILLARS = [
+    { id: 'rates', name: 'Rates & policy', weight: 15, lens: 'macro', blurb: 'The yield curve and the stance of monetary policy. The curve is the longest-lead signal; the recession usually arrives after it re-steepens, not while it is inverted.' },
+    { id: 'credit', name: 'Credit & financial conditions', weight: 20, lens: 'market', blurb: 'What lenders and bond investors are charging for risk. Spreads and stress indexes move early in corrections and confirm recessions.' },
+    { id: 'labor', name: 'Labor market', weight: 20, lens: 'macro', blurb: 'Claims lead, the Sahm rule confirms. Labor turns late, but once it turns it rarely reverses without a recession.' },
+    { id: 'growth', name: 'Growth & activity', weight: 20, lens: 'macro', blurb: 'Real activity: national activity indexes, surveys, orders, permits and production. Housing and capital goods lead; production is coincident.' },
+    { id: 'consumer', name: 'Consumer', weight: 10, lens: 'macro', blurb: 'The household sector: real income, real spending, confidence and credit stress. Two-thirds of GDP, usually the last domino.' },
+    { id: 'market', name: 'Market stress', weight: 15, lens: 'market', blurb: 'What equities and volatility are already pricing. The correction side of the question: trend, drawdown and implied volatility.' },
+  ];
+
+  // Each indicator: inputs (raw series ids), transform(S) → value series, anchors (value at score 1..5),
+  // optional scorer(valueSeries, S) → {score: Series, extra}, lag (publication lag in days for as-of history).
+  const INDICATORS = [
+    // ---------------- Rates & policy ----------------
+    { id: 'curve_10y3m', pillar: 'rates', name: '10-year minus 3-month Treasury spread', short: '10y–3m curve', weight: 30, inputs: ['T10Y3M'], unit: 'pp', fmt: F.pp2, lag: 1,
+      transform: S => S.T10Y3M, anchors: [1.75, 1.0, 0.4, 0.0, -0.5], scorer: (vs) => curveScore(vs),
+      rule: 'Inverted: 4.0–4.8 by depth. Re-steepening after a material inversion (a run of at least 10 trading days, with 40 or more inverted days in the prior two years): 5 for nine months after the curve turns positive, fading to the level score by month 18. Otherwise by level: ≥1.75 → 1, 1.0 → 2, 0.4 → 3, 0 → 4.',
+      why: 'The most reliable recession predictor in US data since the 1960s (Estrella & Mishkin). Inversions have preceded every recession since 1968 with one false signal (1966) and a long, debated episode in 2022–24. Timing is the weak point: recessions start a median of 6–12 months after the curve re-steepens.' },
+    { id: 'curve_10y2y', pillar: 'rates', name: '10-year minus 2-year Treasury spread', short: '10y–2y curve', weight: 20, inputs: ['T10Y2Y'], unit: 'pp', fmt: F.pp2, lag: 1,
+      transform: S => S.T10Y2Y, anchors: [1.5, 0.8, 0.3, 0.0, -0.4], scorer: (vs) => curveScore(vs, { levelAnchors: [1.5, 0.8, 0.3, 0.0, -0.4] }),
+      rule: 'Same cycle-aware logic as 10y–3m with slightly tighter level anchors (≥1.5 → 1, 0.8 → 2, 0.3 → 3, 0 → 4).',
+      why: 'The market’s favourite curve measure. It inverts earlier than 10y–3m (the 2-year prices the next two years of policy) and re-steepens earlier too, so it is a useful second clock on the same signal.' },
+    { id: 'twos_ff', pillar: 'rates', name: '2-year yield minus fed funds', short: '2y – fed funds', weight: 10, inputs: ['DGS2', 'DFF'], unit: 'pp', fmt: F.pp2, lag: 1,
+      transform: S => combine(S.DGS2, S.DFF, (a, b) => a - b, 7), anchors: [0.5, 0.0, -0.5, -1.0, -1.75],
+      rule: '≥ +0.50 → 1, 0 → 2, −0.50 → 3, −1.00 → 4, ≤ −1.75 → 5.',
+      why: 'When the 2-year trades well below the policy rate the market is pricing rapid cuts, which it only does when it expects the economy to force the Fed’s hand. Readings below −1 pp preceded 2001, 2007–08 and 2019–20.' },
+    { id: 'real_ff', pillar: 'rates', name: 'Real policy rate (fed funds minus core PCE inflation)', short: 'Real fed funds', weight: 10, inputs: ['FEDFUNDS', 'PCEPILFE'], unit: 'pp', fmt: F.pp2, lag: 60,
+      transform: S => combine(S.FEDFUNDS, pctChangeK(S.PCEPILFE, 12), (ff, pi) => ff - pi, 62), anchors: [0.5, 1.5, 2.5, 3.5, 4.5],
+      rule: '≤ +0.5 → 1, +1.5 → 2, +2.5 → 3, +3.5 → 4, ≥ +4.5 → 5.',
+      why: 'Monetary policy acts with a lag. A real policy rate well above the economy’s neutral rate (most estimates 0.5–1.5% today, higher in the 1990s) is the mechanism through which tightening cycles end in recessions. Anchors are set wide because neutral has drifted down over the decades.' },
+    { id: 'cpi', pillar: 'rates', name: 'CPI inflation, year over year', short: 'CPI inflation', weight: 15, inputs: ['CPIAUCSL'], unit: '%', fmt: F.yoy, lag: 42,
+      transform: S => pctChangeK(S.CPIAUCSL, 12), anchors: [2.0, 3.0, 4.0, 5.5, 7.0],
+      scorer: (vs) => ({ score: mapSeries(vs, x => Math.max(scoreFromAnchors(x, [2.0, 3.0, 4.0, 5.5, 7.0]), scoreFromAnchors(x, [1.5, 1.0, 0.5, 0.0, -1.0]))) }),
+      rule: 'Two-sided: 2% → 1, 3% → 2, 4% → 3, 5.5% → 4, ≥7% → 5; and on the deflation side 1.5% → 1 down to ≤ −1% → 5.',
+      why: 'High inflation forces policy tightening (the 1970s, 1980, 2022); outright deflation signals collapsing demand (2009, 2015). Either tail raises downturn risk.' },
+    { id: 'oil', pillar: 'rates', name: 'WTI crude oil, year-over-year change', short: 'Oil shock', weight: 15, inputs: ['DCOILWTICO'], unit: '%', fmt: F.yoy, lag: 1,
+      transform: S => changeDays(S.DCOILWTICO, 365, true), anchors: [0, 25, 50, 75, 100],
+      rule: '≤ 0% → 1, +25% → 2, +50% → 3, +75% → 4, ≥ +100% → 5.',
+      why: 'Hamilton’s oil-shock research finds that almost every post-war US recession was preceded by a sharp rise in oil prices. A one-sided test; falling oil is read through the growth indicators instead.' },
+    // ---------------- Credit & financial conditions ----------------
+    { id: 'hy_oas', pillar: 'credit', name: 'High-yield OAS, level and 3-month change', short: 'HY spreads', weight: 25, inputs: ['BAMLH0A0HYM2'], unit: '%', fmt: F.pct2, lag: 1,
+      transform: S => S.BAMLH0A0HYM2, anchors: [3.25, 4.0, 5.0, 6.5, 8.5],
+      scorer: (vs) => ({ score: maxSeries(scoreSeries(vs, [3.25, 4.0, 5.0, 6.5, 8.5]), scoreSeries(changeDays(vs, 91, false), [0.25, 0.75, 1.25, 2.0, 3.5])), aux: { name: '3-month change (pp)', series: changeDays(vs, 91, false), fmt: F.pp2 } }),
+      rule: 'Higher of the level score (3.25% → 1, 4% → 2, 5% → 3, 6.5% → 4, ≥8.5% → 5) and the momentum score on the 3-month change (+0.25 pp → 1, +0.75 → 2, +1.25 → 3, +2.0 → 4, ≥ +3.5 → 5).',
+      why: 'High-yield spreads are the price of default risk. They widen before and during every recession and every major correction; the speed of widening matters as much as the level. FRED now carries only the trailing three years of the ICE BofA indexes, so the Baa spread supplies the long history.' },
+    { id: 'ig_oas', pillar: 'credit', name: 'Investment-grade OAS, level and 3-month change', short: 'IG spreads', weight: 10, inputs: ['BAMLC0A0CM'], unit: '%', fmt: F.pct2, lag: 1,
+      transform: S => S.BAMLC0A0CM, anchors: [0.95, 1.15, 1.45, 1.9, 2.6],
+      scorer: (vs) => ({ score: maxSeries(scoreSeries(vs, [0.95, 1.15, 1.45, 1.9, 2.6]), scoreSeries(changeDays(vs, 91, false), [0.10, 0.25, 0.45, 0.75, 1.25])), aux: { name: '3-month change (pp)', series: changeDays(vs, 91, false), fmt: F.pp2 } }),
+      rule: 'Higher of level (0.95% → 1, 1.15 → 2, 1.45 → 3, 1.9 → 4, ≥2.6 → 5) and 3-month change (+0.10 pp → 1, +0.25 → 2, +0.45 → 3, +0.75 → 4, ≥ +1.25 → 5).',
+      why: 'Investment-grade spreads move less but matter more for TRS-sized fixed income books: they drive mark-to-market on the core bond sleeve and signal funding stress for large borrowers.' },
+    { id: 'baa_spread', pillar: 'credit', name: 'Baa corporate spread over 10-year Treasury, level and 3-month change', short: 'Baa spread', weight: 15, inputs: ['BAA10Y'], unit: 'pp', fmt: x => (x == null ? '–' : x.toFixed(2) + ' pp'), lag: 1,
+      transform: S => S.BAA10Y, anchors: [1.75, 2.25, 2.75, 3.5, 4.5],
+      scorer: (vs) => ({ score: maxSeries(scoreSeries(vs, [1.75, 2.25, 2.75, 3.5, 4.5]), scoreSeries(changeDays(vs, 91, false), [0.1, 0.3, 0.5, 0.8, 1.25])), aux: { name: '3-month change (pp)', series: changeDays(vs, 91, false), fmt: F.pp2 } }),
+      rule: 'Higher of level (1.75 pp → 1, 2.25 → 2, 2.75 → 3, 3.5 → 4, ≥ 4.5 → 5) and 3-month change (+0.10 pp → 1, +0.30 → 2, +0.50 → 3, +0.80 → 4, ≥ +1.25 → 5).',
+      why: 'Moody’s Baa yield less the 10-year Treasury is the classic long-history credit spread (daily since 1986). It is the credit measure behind most academic recession models and it carries the back-test where the ICE BofA indexes do not reach.' },
+    { id: 'nfci', pillar: 'credit', name: 'Chicago Fed National Financial Conditions Index', short: 'NFCI', weight: 20, inputs: ['NFCI'], unit: 'index', fmt: F.num2, lag: 5,
+      transform: S => S.NFCI, anchors: [-0.6, -0.4, -0.2, 0.1, 0.6],
+      rule: '≤ −0.60 → 1, −0.40 → 2, −0.20 → 3, +0.10 → 4, ≥ +0.60 → 5. Zero is the long-run average; positive means tighter than average.',
+      why: 'A weekly composite of 105 measures of risk, credit and leverage. Every recession since 1971 has seen it move above zero; most of the time it sits comfortably negative.' },
+    { id: 'stlfsi', pillar: 'credit', name: 'St. Louis Fed Financial Stress Index', short: 'Financial stress', weight: 15, inputs: ['STLFSI4'], unit: 'index', fmt: F.num2, lag: 6,
+      transform: S => S.STLFSI4, anchors: [-0.6, -0.3, 0.1, 1.0, 2.5],
+      rule: '≤ −0.60 → 1, −0.30 → 2, +0.10 → 3, +1.0 → 4, ≥ +2.5 → 5. Zero is average stress.',
+      why: 'Built from 18 weekly series (yields, spreads, volatility). It spikes in market crises (2008, 2020, March 2023) and so complements the slower NFCI.' },
+    { id: 'sloos', pillar: 'credit', name: 'Banks tightening C&I lending standards (SLOOS, net %)', short: 'Bank lending standards', weight: 15, inputs: ['DRTSCILM'], unit: '%', fmt: F.num1, lag: 35,
+      transform: S => S.DRTSCILM, anchors: [-5, 5, 20, 40, 60],
+      rule: '≤ −5% → 1, +5% → 2, +20% → 3, +40% → 4, ≥ +60% → 5.',
+      why: 'The Fed’s quarterly loan-officer survey. Net tightening above 40% has accompanied every recession since the survey began in 1990 and leads C&I loan growth by two to three quarters.' },
+    // ---------------- Labor ----------------
+    { id: 'sahm', pillar: 'labor', name: 'Sahm rule (3-month average unemployment minus 12-month low)', short: 'Sahm rule', weight: 35, inputs: ['SAHMREALTIME'], unit: 'pp', fmt: F.pp2, lag: 35,
+      transform: S => S.SAHMREALTIME, anchors: [0.05, 0.2, 0.3, 0.4, 0.5],
+      rule: '≤ 0.05 pp → 1, 0.20 → 2, 0.30 → 3, 0.40 → 4, ≥ 0.50 → 5 (the official trigger).',
+      why: 'Claudia Sahm’s rule has flagged every recession since 1970 within months of its start with no false positives until the debated August 2024 trigger. It confirms rather than predicts, which is exactly why it anchors the labor pillar.' },
+    { id: 'claims', pillar: 'labor', name: 'Initial claims (4-week average) above the 52-week low', short: 'Initial claims', weight: 25, inputs: ['ICSA'], unit: '%', fmt: F.spct, lag: 5,
+      transform: S => { const a = rollMean(S.ICSA, 4); const lo = rollMin(a, 52); return combine(a, lo, (x, m) => (x / m - 1) * 100, 0); }, anchors: [8, 15, 25, 40, 60],
+      rule: '≤ 8% above the 52-week low → 1, 15% → 2, 25% → 3, 40% → 4, ≥ 60% → 5.',
+      why: 'The timeliest labor data there is. Measuring claims against their own trailing low removes the drift from population growth; recessions see a 50–100% rise from the low.' },
+    { id: 'cont_claims', pillar: 'labor', name: 'Continued claims, year-over-year change', short: 'Continued claims', weight: 15, inputs: ['CCSA'], unit: '%', fmt: F.yoy, lag: 12,
+      transform: S => pctChangeK(S.CCSA, 52), anchors: [-5, 2, 10, 20, 35],
+      rule: '≤ −5% y/y → 1, +2% → 2, +10% → 3, +20% → 4, ≥ +35% → 5.',
+      why: 'Rising continued claims mean the unemployed are not finding work. It is a cleaner read on hiring than initial claims, with a one-week extra lag.' },
+    { id: 'payrolls', pillar: 'labor', name: 'Nonfarm payrolls, 3-month average monthly change', short: 'Payroll growth', weight: 25, inputs: ['PAYEMS'], unit: 'k', fmt: F.k, lag: 35,
+      transform: S => mapSeries(diffK(S.PAYEMS, 3), x => x / 3), anchors: [175, 100, 50, 0, -100],
+      rule: '≥ +175k/month → 1, +100k → 2, +50k → 3, 0 → 4, ≤ −100k → 5.',
+      why: 'Payroll growth below break-even (roughly 50–100k a month at current demographics) pushes unemployment up. Negative three-month averages have only occurred in or at the edge of recessions. Note that benchmark revisions can move recent months materially.' },
+    // ---------------- Growth & activity ----------------
+    { id: 'cfnai', pillar: 'growth', name: 'Chicago Fed National Activity Index, 3-month average', short: 'CFNAI-MA3', weight: 25, inputs: ['CFNAIMA3'], unit: 'index', fmt: F.num2, lag: 52,
+      transform: S => S.CFNAIMA3, anchors: [0.25, 0.0, -0.25, -0.5, -0.7],
+      rule: '≥ +0.25 → 1, 0 → 2, −0.25 → 3, −0.50 → 4, ≤ −0.70 → 5 (the Chicago Fed’s recession threshold).',
+      why: 'A weighted average of 85 monthly activity indicators. Zero means trend growth; the Chicago Fed treats −0.70 after an expansion as a recession signal, which has worked since 1967 with few misses.' },
+    { id: 'wei', pillar: 'growth', name: 'Weekly Economic Index (scaled to 4-quarter GDP growth)', short: 'Weekly Economic Index', weight: 15, inputs: ['WEI'], unit: '%', fmt: F.pct1, lag: 5,
+      transform: S => S.WEI, anchors: [2.5, 1.75, 1.0, 0.0, -1.5],
+      rule: '≥ 2.5 → 1, 1.75 → 2, 1.0 → 3, 0 → 4, ≤ −1.5 → 5.',
+      why: 'Ten weekly series (claims, retail, fuel sales, steel, electricity, tax withholding, rail) scaled to GDP growth. The fastest broad read on real activity, available since 2008.' },
+    { id: 'permits', pillar: 'growth', name: 'Building permits, year-over-year change', short: 'Building permits', weight: 20, inputs: ['PERMIT'], unit: '%', fmt: F.yoy, lag: 48,
+      transform: S => pctChangeK(S.PERMIT, 12), anchors: [5, 0, -8, -18, -30],
+      rule: '≥ +5% y/y → 1, 0 → 2, −8% → 3, −18% → 4, ≤ −30% → 5.',
+      why: '“Housing is the business cycle” (Leamer, 2007). Permits lead starts, which lead construction employment and durable-goods demand by two to four quarters.' },
+    { id: 'capex', pillar: 'growth', name: 'Core capital goods orders, year-over-year change', short: 'Core capex orders', weight: 15, inputs: ['NEWORDER'], unit: '%', fmt: F.yoy, lag: 56,
+      transform: S => pctChangeK(S.NEWORDER, 12), anchors: [4, 1, -2, -5, -10],
+      rule: '≥ +4% y/y → 1, +1% → 2, −2% → 3, −5% → 4, ≤ −10% → 5.',
+      why: 'Nondefense capital goods excluding aircraft is the cleanest read on business investment intentions, which fall first when CFOs lose confidence.' },
+    { id: 'indpro', pillar: 'growth', name: 'Industrial production, year-over-year change', short: 'Industrial production', weight: 10, inputs: ['INDPRO'], unit: '%', fmt: F.yoy, lag: 46,
+      transform: S => pctChangeK(S.INDPRO, 12), anchors: [2.5, 1.0, 0.0, -2.0, -5.0],
+      rule: '≥ +2.5% y/y → 1, +1% → 2, 0 → 3, −2% → 4, ≤ −5% → 5.',
+      why: 'One of the four coincident series the NBER dating committee watches. Negative year-over-year readings outside recessions have been short-lived (2015–16, 2019, 2023).' },
+    { id: 'regional', pillar: 'growth', name: 'Regional Fed manufacturing surveys (Philadelphia + New York, 3-month average)', short: 'Regional Fed surveys', weight: 15, inputs: ['GACDFSA066MSFRBPHI', 'GACDISA066MSFRBNY'], unit: 'index', fmt: F.num1, lag: 20,
+      transform: S => { const avg = S.GACDISA066MSFRBNY ? combine(S.GACDFSA066MSFRBPHI, S.GACDISA066MSFRBNY, (a, b) => (a + b) / 2, 20) : S.GACDFSA066MSFRBPHI; return rollMean(avg, 3); }, anchors: [10, 0, -10, -20, -35],
+      rule: '≥ +10 → 1, 0 → 2, −10 → 3, −20 → 4, ≤ −35 → 5 (diffusion index, 3-month average).',
+      why: 'The Philly Fed and Empire State surveys arrive mid-month, two weeks before ISM, whose PMI has no free machine-readable source and is therefore not included. They are noisy, hence the 3-month average.' },
+    // ---------------- Consumer ----------------
+    { id: 'sentiment', pillar: 'consumer', name: 'Consumer sentiment (Michigan): level and 6-month change', short: 'Consumer sentiment', weight: 25, inputs: ['UMCSENT'], unit: 'index', fmt: F.num1, lag: 60,
+      transform: S => S.UMCSENT, anchors: [90, 80, 70, 60, 50],
+      scorer: (vs) => ({ score: meanSeries(scoreSeries(vs, [90, 80, 70, 60, 50]), scoreSeries(diffK(vs, 6), [5, 2, -2, -6, -12])), aux: { name: '6-month change (points)', series: diffK(vs, 6), fmt: F.num1 } }),
+      rule: 'Average of the level score (90 → 1, 80 → 2, 70 → 3, 60 → 4, ≤ 50 → 5) and the 6-month-change score (+5 → 1, +2 → 2, −2 → 3, −6 → 4, ≤ −12 → 5).',
+      why: 'Sentiment leads spending at turning points, but since 2020 its level has been depressed by inflation and partisanship without a recession following, so the change term carries half the weight.' },
+    { id: 'real_income', pillar: 'consumer', name: 'Real personal income excluding transfers, year-over-year change', short: 'Real income ex transfers', weight: 30, inputs: ['W875RX1'], unit: '%', fmt: F.yoy, lag: 60,
+      transform: S => pctChangeK(S.W875RX1, 12), anchors: [3, 2, 1, 0, -1],
+      rule: '≥ +3% y/y → 1, +2% → 2, +1% → 3, 0 → 4, ≤ −1% → 5.',
+      why: 'Another of the NBER’s four coincident indicators and the purest measure of earned purchasing power. It has fallen year over year only in recessions and in the 2022 inflation squeeze.' },
+    { id: 'real_retail', pillar: 'consumer', name: 'Real retail and food-services sales, year-over-year change', short: 'Real retail sales', weight: 25, inputs: ['RRSFS'], unit: '%', fmt: F.yoy, lag: 45,
+      transform: S => pctChangeK(S.RRSFS, 12), anchors: [2.5, 1.0, 0.0, -2.0, -4.0],
+      rule: '≥ +2.5% y/y → 1, +1% → 2, 0 → 3, −2% → 4, ≤ −4% → 5.',
+      why: 'Spending adjusted for inflation. Flat-to-negative real sales for several months is the consumer actually retrenching rather than merely saying so.' },
+    { id: 'card_dq', pillar: 'consumer', name: 'Credit card delinquency rate: level and 12-month change', short: 'Card delinquencies', weight: 20, inputs: ['DRCCLACBS'], unit: '%', fmt: F.pct2, lag: 140,
+      transform: S => S.DRCCLACBS, anchors: [2.5, 3.0, 3.5, 4.5, 5.5],
+      scorer: (vs) => ({ score: meanSeries(scoreSeries(vs, [2.5, 3.0, 3.5, 4.5, 5.5]), scoreSeries(diffK(vs, 4), [-0.2, 0.0, 0.3, 0.6, 1.0])), aux: { name: '12-month change (pp)', series: diffK(vs, 4), fmt: F.pp2 } }),
+      rule: 'Average of the level score (2.5% → 1, 3.0% → 2, 3.5% → 3, 4.5% → 4, ≥ 5.5% → 5) and the 12-month-change score (−0.2 pp → 1, 0 → 2, +0.3 → 3, +0.6 → 4, ≥ +1.0 → 5).',
+      why: 'Household credit stress builds slowly and lags. Delinquency rates were structurally higher before the post-2010 tightening of card underwriting, so the change term matters as much as the level. Quarterly, published about seven weeks after quarter end.' },
+    // ---------------- Market stress ----------------
+    { id: 'spx_dd', pillar: 'market', name: 'S&P 500 drawdown from 52-week high', short: 'S&P 500 drawdown', weight: 35, inputs: ['SPX'], unit: '%', fmt: x => (x == null ? '–' : '−' + x.toFixed(1) + '%'), lag: 1,
+      transform: S => { const px = S.SPX; const hi = rollMax(px, 252); return combine(px, hi, (p, h) => (1 - p / h) * 100, 0); }, anchors: [3, 6, 10, 15, 20],
+      rule: '≤ 3% below the high → 1, 6% → 2, 10% → 3, 15% → 4, ≥ 20% → 5.',
+      why: 'A 10% drawdown is the conventional definition of a correction, 20% of a bear market. Equities are a leading indicator with a famous false-positive rate (“nine of the last five recessions”), so this pillar’s weight is deliberately moderate.' },
+    { id: 'spx_ma', pillar: 'market', name: 'S&P 500 versus its 200-day moving average', short: 'S&P 500 vs 200-day', weight: 25, inputs: ['SPX'], unit: '%', fmt: F.spct, lag: 1,
+      transform: S => { const px = S.SPX; const ma = rollMean(px, 200); return combine(px, ma, (p, m) => (p / m - 1) * 100, 0); }, anchors: [6, 3, 0, -5, -12],
+      rule: '≥ +6% above → 1, +3% → 2, at the average → 3, −5% → 4, ≤ −12% → 5.',
+      why: 'The simplest trend filter. Sustained trading below the 200-day average has preceded or accompanied every bear market; it also whipsaws in range-bound years, hence the modest weight.' },
+    { id: 'vix', pillar: 'market', name: 'CBOE VIX (S&P 500 implied volatility)', short: 'VIX', weight: 25, inputs: ['VIXCLS'], unit: 'index', fmt: F.num1, lag: 1,
+      transform: S => S.VIXCLS, anchors: [14, 18, 22, 28, 36],
+      rule: '≤ 14 → 1, 18 → 2, 22 → 3, 28 → 4, ≥ 36 → 5.',
+      why: 'The price of equity insurance. Sustained readings above 30 mark genuine stress regimes; single-day spikes (August 2024) usually reverse, which the daily refresh will show.' },
+    { id: 'move', pillar: 'market', name: 'ICE BofA MOVE index (Treasury implied volatility)', short: 'MOVE', weight: 15, inputs: ['MOVE'], unit: 'index', fmt: F.num1, lag: 1, optional: true,
+      transform: S => S.MOVE, anchors: [70, 95, 115, 135, 165],
+      rule: '≤ 70 → 1, 95 → 2, 115 → 3, 135 → 4, ≥ 165 → 5.',
+      why: 'Rates volatility is the plumbing of every other market. It ran structurally high in 2022–24 without a recession, so the anchors are set wide. Sourced from Yahoo Finance (daily since late 2002); optional.' },
+  ];
+
+  const REFERENCE = [
+    { id: 'recprob', name: 'Smoothed recession probability (Chauvet–Piger)', input: 'RECPROUSM156N', fmt: F.pct1, note: 'A dynamic-factor Markov-switching model on the four NBER coincident series (Chauvet and Piger). The authors treat three consecutive months above 80% as the start of a recession and three below 20% as its end. Published with a two-month lag.' },
+    { id: 'nyfed', name: 'NY Fed yield-curve recession probability, 12 months ahead', input: 'NYFEDPROB', fmt: F.pct1, forward: 12, note: 'Probit model on the 10-year minus 3-month spread, published monthly. The value shown is the latest estimate: the probability that the economy is in recession twelve months from the most recent spread observation.' },
+  ];
+
+  const LEVELS = [
+    { n: 1, name: 'Benign', from: 1.0, to: 1.8, desc: 'Expansion intact. Few indicators elevated.' },
+    { n: 2, name: 'Guarded', from: 1.8, to: 2.6, desc: 'Late-cycle signs. Worth watching, not acting on.' },
+    { n: 3, name: 'Elevated', from: 2.6, to: 3.4, desc: 'Broad slowdown signals. Corrections typical at this level.' },
+    { n: 4, name: 'High', from: 3.4, to: 4.2, desc: 'Recession or correction risk high. Multiple pillars stressed.' },
+    { n: 5, name: 'Severe', from: 4.2, to: 5.01, desc: 'Recession or major correction under way or imminent.' },
+  ];
+  const levelOf = s => (s == null ? null : LEVELS.find(L => s >= L.from && s < L.to) || LEVELS[4]);
+  // Aggregates (pillars, lenses, composite) average many indicator scores, which compresses their range.
+  // These bands are calibrated on 1990–2026 history so that recessions reach High/Severe while
+  // non-recession stress episodes top out at Elevated.
+  const COMPOSITE_LEVELS = [
+    { n: 1, name: 'Benign', from: 1.0, to: 1.7, desc: 'Expansion intact. Few indicators elevated.' },
+    { n: 2, name: 'Guarded', from: 1.7, to: 2.3, desc: 'Late-cycle signs. Worth watching, not acting on.' },
+    { n: 3, name: 'Elevated', from: 2.3, to: 3.0, desc: 'Broad slowdown or market-stress signals. Corrections typical at this level.' },
+    { n: 4, name: 'High', from: 3.0, to: 3.7, desc: 'Recession or major correction risk high. Several pillars stressed.' },
+    { n: 5, name: 'Severe', from: 3.7, to: 5.01, desc: 'Recession or major correction under way or imminent.' },
+  ];
+  const levelOfComposite = s => (s == null ? null : COMPOSITE_LEVELS.find(L => s >= L.from && s < L.to) || COMPOSITE_LEVELS[4]);
+  // position of a composite score on an equal-width five-band scale (0..5), for gauges and meters
+  const bandPosition = s => { if (s == null) return null; const L = levelOfComposite(s); const w = Math.min(5, L.to) - L.from; return (L.n - 1) + Math.max(0, Math.min(1, (s - L.from) / w)); };
+
+  const STRESS_EPISODES = [
+    { name: 'LTCM / Russia', from: '1998-08-31', to: '1998-10-31' },
+    { name: 'US downgrade / euro crisis', from: '2011-08-31', to: '2011-11-30' },
+    { name: 'China / oil / industrial recession', from: '2015-08-31', to: '2016-02-29' },
+    { name: 'Q4 2018 selloff', from: '2018-10-31', to: '2018-12-31' },
+    { name: '2022 rate-shock bear market', from: '2022-01-31', to: '2022-10-31' },
+    { name: 'March 2023 bank failures', from: '2023-03-31', to: '2023-05-31' },
+    { name: 'August 2024 Sahm trigger', from: '2024-07-31', to: '2024-09-30' },
+    { name: 'April 2025 tariff shock', from: '2025-03-31', to: '2025-05-31' },
+  ];
+
+  // ---------- model evaluation ----------
+  function prepareSeries(data) {
+    // normalise raw data: use Stooq/Yahoo S&P if present, else FRED SP500; expose as S.SPX
+    const S = {};
+    for (const k in data.series) S[k] = { t: data.series[k].t, v: data.series[k].v };
+    if (S.SPX && S.SPX.t.length < 2500) delete S.SPX; // a sparse (monthly/quarterly) feed is worse than FRED's ten daily years
+    if (!S.SPX && S.SP500) S.SPX = S.SP500;
+    else if (S.SPX && S.SP500) { // splice: extend SPX with FRED SP500 if FRED is fresher
+      const a = last(S.SPX), b = last(S.SP500);
+      if (b && a && b.t > a.t) { const t = S.SPX.t.slice(), v = S.SPX.v.slice(); for (let i = 0; i < S.SP500.t.length; i++) if (S.SP500.t[i] > a.t) { t.push(S.SP500.t[i]); v.push(S.SP500.v[i]); } S.SPX = mk(t, v); }
+    }
+    return S;
+  }
+
+  function buildModel(data, settings) {
+    const S = prepareSeries(data);
+    const st = settings || {};
+    const ind = [];
+    for (const def of INDICATORS) {
+      const have = def.inputs.every(k => S[k] && S[k].t.length > 10);
+      if (!have) { ind.push({ def, available: false }); continue; }
+      let vs; try { vs = def.transform(S); } catch (e) { ind.push({ def, available: false, error: String(e) }); continue; }
+      const anchors = (st.anchors && st.anchors[def.id]) || def.anchors;
+      let scored;
+      if (def.scorer && !(st.anchors && st.anchors[def.id])) scored = def.scorer(vs, S);
+      else scored = { score: scoreSeries(vs, anchors) };
+      ind.push({ def, available: true, values: vs, score: scored.score, aux: scored.aux || null, curve: scored.state ? scored : null, anchors,
+        weight: (st.weights && st.weights[def.id] != null) ? st.weights[def.id] : def.weight,
+        enabled: !(st.disabled && st.disabled[def.id]) });
+    }
+    const pillars = PILLARS.map(p => ({ ...p, weight: (st.pillarWeights && st.pillarWeights[p.id] != null) ? st.pillarWeights[p.id] : p.weight }));
+    return { S, ind, pillars, data };
+  }
+
+  // reading for one indicator as of `day`; live=true ignores publication lags
+  function readIndicator(x, day, live) {
+    if (!x.available) return null;
+    const lag = live ? 0 : (x.def.lag || 0);
+    const r = valueAt(x.values, day - lag, 400);
+    if (!r) return null;
+    const s = valueAt(x.score, r.t, 0);
+    return { value: r.v, score: s ? s.v : null, t: r.t };
+  }
+
+  function aggregate(model, day, live) {
+    const out = { day, pillars: {}, composite: null, macro: null, market: null, coverage: 0, byInd: {}, counts: [0, 0, 0, 0, 0], n: 0 };
+    let totW = 0, availW = 0;
+    for (const p of model.pillars) {
+      let sw = 0, ss = 0, n = 0;
+      for (const x of model.ind) {
+        if (x.def.pillar !== p.id) continue;
+        totW += p.weight * (x.enabled ? x.weight : 0);
+        if (!x.enabled) continue;
+        const r = readIndicator(x, day, live);
+        out.byInd[x.def.id] = r;
+        if (r && r.score != null) { sw += x.weight; ss += x.weight * r.score; n++; availW += p.weight * x.weight; const L = levelOf(r.score); if (L) out.counts[L.n - 1]++; out.n++; }
+      }
+      out.pillars[p.id] = n ? { score: ss / sw, n, weight: p.weight } : { score: null, n: 0, weight: p.weight };
+    }
+    const agg = ids => { let w = 0, s = 0; for (const id of ids) { const p = out.pillars[id]; if (p && p.score != null) { w += p.weight; s += p.weight * p.score; } } return w ? s / w : null; };
+    out.composite = agg(model.pillars.map(p => p.id));
+    out.macro = agg(model.pillars.filter(p => p.lens === 'macro').map(p => p.id));
+    out.market = agg(model.pillars.filter(p => p.lens === 'market').map(p => p.id));
+    out.coverage = totW ? availW / totW : 0;
+    return out;
+  }
+
+  function history(model, fromYmd, toDay) {
+    const start = ymdToDay(fromYmd); const t = [], comp = [], macro = [], market = [], cov = [], pil = {};
+    for (const p of model.pillars) pil[p.id] = [];
+    let d = addMonths(start, 0);
+    while (d <= toDay) { const a = aggregate(model, d, false); t.push(d); comp.push(a.composite); macro.push(a.macro); market.push(a.market); cov.push(a.coverage); for (const p of model.pillars) pil[p.id].push(a.pillars[p.id].score); d = addMonths(d, 1); }
+    return { t, composite: comp, macro, market, coverage: cov, pillars: pil };
+  }
+
+  function recessions(S) { // from USREC monthly flags → [{start, end}] in epoch days (month starts)
+    const out = []; const u = S.USREC; if (!u) return out; let cur = null;
+    for (let i = 0; i < u.t.length; i++) { if (u.v[i] >= 0.5 && !cur) cur = { start: u.t[i], end: null }; if (u.v[i] < 0.5 && cur) { cur.end = u.t[i]; out.push(cur); cur = null; } }
+    if (cur) out.push(cur); return out;
+  }
+
+  function backtest(model, hist) {
+    const S = model.S; const recs = recessions(S).filter(r => r.start >= ymdToDay('1989-01-01'));
+    const at = day => { const i = idxAt({ t: hist.t, v: hist.composite }, day); return i < 0 ? null : hist.composite[i]; };
+    const maxIn = (a, b) => { let m = null; for (let i = 0; i < hist.t.length; i++) if (hist.t[i] >= a && hist.t[i] <= b && hist.composite[i] != null) m = m == null ? hist.composite[i] : Math.max(m, hist.composite[i]); return m; };
+    const rows = recs.map(r => {
+      const startEOM = addMonths(r.start, 0); const endEOM = r.end ? addMonths(r.end, -1) : hist.t[hist.t.length - 1];
+      // first month within the prior 18 months with composite >= 3.4 (High)
+      let lead = null; const HIGH = COMPOSITE_LEVELS[3].from; for (let k = 18; k >= 0; k--) { const d = addMonths(startEOM, -k); const c = at(d); if (c != null && c >= HIGH) { lead = k; break; } }
+      return { name: 'Recession ' + dayToYmd(r.start).slice(0, 7) + (r.end ? ' – ' + dayToYmd(addMonths(r.end, -1)).slice(0, 7) : ' – ongoing'), start: r.start, m12: at(addMonths(startEOM, -12)), m6: at(addMonths(startEOM, -6)), m3: at(addMonths(startEOM, -3)), m0: at(startEOM), peak: maxIn(startEOM, endEOM), lead };
+    });
+    const stress = STRESS_EPISODES.map(e => ({ name: e.name, from: e.from, to: e.to, peak: maxIn(ymdToDay(e.from), ymdToDay(e.to)) }));
+    return { recessions: rows, stress };
+  }
+
+  function changesSince(model, dayNow, dayThen, live) {
+    const a = aggregate(model, dayNow, live), b = aggregate(model, dayThen, false); const moves = [];
+    for (const x of model.ind) { const r1 = a.byInd[x.def.id], r0 = b.byInd[x.def.id]; if (r1 && r0 && r1.score != null && r0.score != null) moves.push({ id: x.def.id, name: x.def.short, pillar: x.def.pillar, d: r1.score - r0.score, from: r0.score, to: r1.score, fromLevel: levelOf(r0.score).n, toLevel: levelOf(r1.score).n }); }
+    moves.sort((p, q) => Math.abs(q.d) - Math.abs(p.d));
+    return { now: a, then: b, moves };
+  }
+
+  return { MS_DAY, dayToDate, dateToDay, ymdToDay, dayToYmd, addMonths, monthEndDay, idxAt, valueAt, last, slice, upTo, mapSeries, pctChangeK, diffK, changeDays, rollMean, rollMax, rollMin, combine, percentileOf,
+    scoreFromAnchors, scoreSeries, curveScore, F, PILLARS, INDICATORS, REFERENCE, LEVELS, levelOf, COMPOSITE_LEVELS, levelOfComposite, bandPosition, STRESS_EPISODES, prepareSeries, buildModel, readIndicator, aggregate, history, recessions, backtest, changesSince };
+});
+
+</script>
+<script>
+/* Downturn Monitor — page logic (depends on DM engine) */
+(function () {
+  'use strict';
+  const CONFIG = window.DM_CONFIG || {};   // {liveUrl, repoUrl}
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); if (attrs) for (const k in attrs) { if (k === 'class') n.className = attrs[k]; else if (k === 'text') n.textContent = attrs[k]; else if (k === 'html') n.innerHTML = attrs[k]; else if (k.startsWith('on')) n.addEventListener(k.slice(2), attrs[k]); else if (attrs[k] != null) n.setAttribute(k, attrs[k]); } for (const c of kids) { if (c == null) continue; n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); } return n; };
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const fmtDay = d => { const x = DM.dayToDate(d); return MONTHS[x.getUTCMonth()] + ' ' + x.getUTCDate() + ', ' + x.getUTCFullYear(); };
+  const fmtMonth = d => { const x = DM.dayToDate(d); return MONTHS[x.getUTCMonth()] + ' ' + x.getUTCFullYear(); };
+  const fmtScore = s => (s == null ? '–' : s.toFixed(1));
+  const ordinal = n => { n = Math.round(n); const m100 = n % 100, m10 = n % 10; return n + ((m100 >= 11 && m100 <= 13) ? 'th' : m10 === 1 ? 'st' : m10 === 2 ? 'nd' : m10 === 3 ? 'rd' : 'th'); };
+  const fmtObs = (x, day) => { const sid = x.def.inputs[0]; const fq = state.data && state.data.series[sid] ? state.data.series[sid].freq : 'D'; if (fq === 'M') return fmtMonth(day); if (fq === 'Q') { const dt = DM.dayToDate(day); return 'Q' + (Math.floor(dt.getUTCMonth() / 3) + 1) + ' ' + dt.getUTCFullYear(); } return fmtDay(day); };
+  const fmtDelta = (d, digits) => { if (d == null) return '–'; const n = digits == null ? 1 : digits; const r = Math.abs(d).toFixed(n); const zero = parseFloat(r) === 0; return (zero ? '' : d > 0 ? '+' : '−') + r; };
+  const lv = s => DM.levelOf(s);
+  const lvC = s => DM.levelOfComposite(s);
+  const lvClass = s => (s == null ? 'na' : 'l' + lv(s).n);
+  const lvClassC = s => (s == null ? 'na' : 'l' + lvC(s).n);
+  const chipC = s => { const L = lvC(s); return el('span', { class: 'chip ' + lvClassC(s), text: s == null ? 'n/a' : fmtScore(s) + ' ' + L.name }); };
+  const chipNameC = s => { const L = lvC(s); return el('span', { class: 'chip ' + lvClassC(s), text: L ? L.name : 'n/a' }); };
+  const chipName = s => { const L = lv(s); return el('span', { class: 'chip ' + lvClass(s), text: L ? L.name : 'n/a' }); };
+  const chip = (s, withName) => { const L = lv(s); return el('span', { class: 'chip ' + lvClass(s), text: s == null ? 'n/a' : (fmtScore(s) + (withName === false ? '' : ' ' + L.name)) }); };
+  const PILLAR_BY_ID = Object.fromEntries(DM.PILLARS.map(p => [p.id, p]));
+  const RANGES = { '1Y': 365, '3Y': 1096, '5Y': 1827, '10Y': 3653, '20Y': 7305, 'Max': null };
+
+  const state = { data: null, model: null, hist: null, bt: null, today: null, asOf: null, range: '5Y', sort: { key: 'score', dir: -1 }, lens: { macro: true, market: true }, source: '', theme: 'system', dl: undefined, settings: null, openId: null, drawerRange: null };
+
+  // ---------------- settings ----------------
+  const SKEY = 'dm.settings.v1';
+  const emptySettings = () => ({ pillarWeights: {}, weights: {}, disabled: {}, anchors: {} });
+  function loadSettings() { try { const raw = localStorage.getItem(SKEY); state.settings = raw ? Object.assign(emptySettings(), JSON.parse(raw)) : emptySettings(); } catch (e) { state.settings = emptySettings(); } }
+  function saveSettings() { try { localStorage.setItem(SKEY, JSON.stringify(state.settings)); } catch (e) { /* storage unavailable: settings live for this session only */ } }
+  const isCustomised = () => { const s = state.settings; return Object.keys(s.pillarWeights).length + Object.keys(s.weights).length + Object.keys(s.disabled).length + Object.keys(s.anchors).length > 0; };
+
+  // ---------------- theme ----------------
+  function applyTheme(t) { state.theme = t; const root = document.documentElement; if (t === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t); try { localStorage.setItem('dm.theme', t); } catch (e) { } const b = $('#btnTheme'); if (b) b.lastChild.textContent = t === 'system' ? 'Theme: auto' : t === 'dark' ? 'Theme: dark' : 'Theme: light'; }
+
+  // ---------------- data loading ----------------
+  async function fetchJson(url, timeoutMs) { const c = new AbortController(); const id = setTimeout(() => c.abort(), timeoutMs); try { const r = await fetch(url, { signal: c.signal, cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(id); } }
+  async function loadData() {
+    const attempts = [];
+    if (CONFIG.liveUrl) attempts.push(fetchJson(CONFIG.liveUrl, 20000).then(j => ({ j, src: 'live feed (GitHub)' })).catch(e => ({ e, src: 'live feed' })));
+    attempts.push(fetchJson('data.json', 20000).then(j => ({ j, src: 'published snapshot' })).catch(e => ({ e, src: 'snapshot' })));
+    const res = await Promise.all(attempts);
+    const ok = res.filter(r => r.j && r.j.series);
+    if (!ok.length) return { error: res.map(r => r.src + ': ' + (r.e && r.e.message || 'failed')).join(' · ') };
+    ok.sort((a, b) => (b.j.generated_at || '').localeCompare(a.j.generated_at || ''));
+    return ok[0];
+  }
+
+  // ---------------- compute ----------------
+  function compute() {
+    state.today = DM.dateToDay(new Date());
+    state.model = DM.buildModel(state.data, state.settings);
+    state.hist = DM.history(state.model, '1990-01-31', state.today);
+    const live = DM.aggregate(state.model, state.today, true);
+    state.live = live;
+    // append the live reading as the final point of the history
+    const h = state.hist; h.t.push(state.today); h.composite.push(live.composite); h.macro.push(live.macro); h.market.push(live.market); h.coverage.push(live.coverage); for (const p of state.model.pillars) h.pillars[p.id].push(live.pillars[p.id].score);
+    state.bt = DM.backtest(state.model, state.hist);
+    state.asOfMax = h.t.length - 1;
+  }
+  const viewDay = () => (state.asOf == null ? state.today : state.asOf);
+  const viewAgg = () => (state.asOf == null ? state.live : DM.aggregate(state.model, state.asOf, false));
+  function histAt(day, key) { const i = DM.idxAt({ t: state.hist.t }, day); if (i < 0) return null; return key ? state.hist[key][i] : i; }
+  function compositeAgo(months) { const d = DM.addMonths(viewDay(), -months); const i = DM.idxAt({ t: state.hist.t }, d); return i < 0 ? null : state.hist.composite[i]; }
+
+  // ---------------- SVG line chart ----------------
+  function niceTicks(lo, hi, n) { const span = hi - lo || 1; const raw = span / n; const mag = Math.pow(10, Math.floor(Math.log10(raw))); const norm = raw / mag; const step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag; const t0 = Math.floor(lo / step) * step, t1 = Math.ceil(hi / step) * step; const ticks = []; for (let v = t0; v <= t1 + step / 2; v += step) ticks.push(+v.toFixed(10)); return { ticks, lo: t0, hi: t1 }; }
+  function sampled(s, x0, x1, pw) { const i0 = Math.max(0, DM.idxAt(s, x0)), i1 = DM.idxAt(s, x1); if (i1 < 0) return []; const n = i1 - i0 + 1; const out = []; if (n <= pw * 2) { for (let i = i0; i <= i1; i++) out.push([s.t[i], s.v[i]]); return out; } const bw = (x1 - x0) / pw; let b = null, mn = null, mx = null; for (let i = i0; i <= i1; i++) { const bi = Math.floor((s.t[i] - x0) / bw); if (bi !== b) { if (mn) { out.push(mn[0] < mx[0] ? mn : mx); if (mn[0] !== mx[0]) out.push(mn[0] < mx[0] ? mx : mn); } b = bi; mn = mx = [s.t[i], s.v[i]]; } else { if (s.v[i] < mn[1]) mn = [s.t[i], s.v[i]]; if (s.v[i] > mx[1]) mx = [s.t[i], s.v[i]]; } } if (mn) { out.push(mn[0] < mx[0] ? mn : mx); if (mn[0] !== mx[0]) out.push(mn[0] < mx[0] ? mx : mn); } return out; }
+  function xLabels(x0, x1) { const y0 = DM.dayToDate(x0).getUTCFullYear(), y1 = DM.dayToDate(x1).getUTCFullYear(); const yrs = (x1 - x0) / 365.25; const out = []; if (yrs <= 2.2) { for (let y = y0; y <= y1; y++) for (let m = 0; m < 12; m += (yrs <= 1.1 ? 2 : 3)) { const d = Math.floor(Date.UTC(y, m, 1) / DM.MS_DAY); if (d >= x0 && d <= x1) out.push([d, MONTHS[m] + (m === 0 || out.length === 0 ? ' ' + String(y).slice(2) : '')]); } return out; } const step = yrs <= 7 ? 1 : yrs <= 16 ? 2 : yrs <= 32 ? 5 : 10; for (let y = Math.ceil(y0 / step) * step; y <= y1; y += step) { const d = DM.ymdToDay(y + '-01-01'); if (d >= x0 && d <= x1) out.push([d, String(y)]); } return out; }
+
+  function lineChart(host, o) {
+    host.innerHTML = '';
+    const W = Math.max(280, host.clientWidth || 640), H = o.height || 260; const m = { l: o.ml || 48, r: o.mr || 16, t: 10, b: 24 }; const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const x0 = o.xFrom, x1 = o.xTo; const xs = d => m.l + (d - x0) / (x1 - x0) * pw;
+    let lo = o.yMin, hi = o.yMax, ticks;
+    if (lo == null || hi == null) { let a = Infinity, b = -Infinity; for (const s of o.series) { if (s.hidden) continue; for (const p of sampled(s, x0, x1, pw)) { if (p[1] < a) a = p[1]; if (p[1] > b) b = p[1]; } } for (const h of (o.hLines || [])) { if (h.y < a) a = h.y; if (h.y > b) b = h.y; } if (!isFinite(a)) { a = 0; b = 1; } if (a === b) { a -= 1; b += 1; } const pad = (b - a) * 0.08; const nt = niceTicks(a - pad, b + pad, 5); lo = lo == null ? nt.lo : lo; hi = hi == null ? nt.hi : hi; ticks = nt.ticks.filter(t => t >= lo && t <= hi); }
+    else ticks = o.yTicks || niceTicks(lo, hi, 4).ticks.filter(t => t >= lo && t <= hi);
+    const ys = v => m.t + (hi - v) / (hi - lo) * ph; const cl = v => Math.max(lo, Math.min(hi, v));
+    const uid = 'c' + Math.random().toString(36).slice(2, 8); const P = [];
+    P.push(`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${o.aria || 'chart'}"><defs><clipPath id="${uid}"><rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}"/></clipPath></defs>`);
+    for (const b of (o.bands || [])) { const y1 = ys(cl(b.to)), y2 = ys(cl(b.from)); if (y2 - y1 > 0.5) P.push(`<rect x="${m.l}" y="${y1}" width="${pw}" height="${y2 - y1}" fill="${b.color}" opacity="${b.opacity == null ? 0.11 : b.opacity}"/>`); }
+    for (const s of (o.shades || [])) { const a = Math.max(x0, s.from), b = Math.min(x1, s.to); if (b > a) P.push(`<rect x="${xs(a)}" y="${m.t}" width="${Math.max(1, xs(b) - xs(a))}" height="${ph}" fill="var(--rec)"/>`); }
+    for (const t of ticks) P.push(`<line x1="${m.l}" x2="${m.l + pw}" y1="${ys(t)}" y2="${ys(t)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l - 8}" y="${ys(t) + 3.5}" text-anchor="end" font-size="11" fill="var(--ink-3)" font-variant-numeric="tabular-nums">${(o.yFmt || (v => v))(t)}</text>`);
+    if (lo < 0 && hi > 0 && !o.noZero) P.push(`<line x1="${m.l}" x2="${m.l + pw}" y1="${ys(0)}" y2="${ys(0)}" stroke="var(--line-2)" stroke-width="1"/>`);
+    for (const h of (o.hLines || [])) P.push(`<line x1="${m.l}" x2="${m.l + pw}" y1="${ys(h.y)}" y2="${ys(h.y)}" stroke="${h.color || 'var(--ink-3)'}" stroke-width="1"/>${h.label ? `<text x="${m.l + pw - 4}" y="${ys(h.y) - 4}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${h.label}</text>` : ''}`);
+    for (const [d, lab] of xLabels(x0, x1)) P.push(`<text x="${xs(d)}" y="${H - 7}" text-anchor="middle" font-size="11" fill="var(--ink-3)">${lab}</text>`);
+    P.push(`<line x1="${m.l}" x2="${m.l + pw}" y1="${m.t + ph}" y2="${m.t + ph}" stroke="var(--line-2)" stroke-width="1"/>`);
+    P.push(`<g clip-path="url(#${uid})">`);
+    const pts = [];
+    o.series.forEach((s, si) => { if (s.hidden) { pts.push([]); return; } const sp = sampled(s, x0, x1, pw); pts.push(sp); if (!sp.length) return; let d = ''; sp.forEach((p, i) => { d += (i ? 'L' : 'M') + xs(p[0]).toFixed(1) + ' ' + ys(p[1]).toFixed(1); }); if (s.area) { P.push(`<path d="${d}L${xs(sp[sp.length - 1][0]).toFixed(1)} ${ys(Math.max(lo, Math.min(hi, s.areaBase == null ? lo : s.areaBase))).toFixed(1)}L${xs(sp[0][0]).toFixed(1)} ${ys(Math.max(lo, Math.min(hi, s.areaBase == null ? lo : s.areaBase))).toFixed(1)}Z" fill="${s.color}" opacity="0.10"/>`); } P.push(`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.width || 2}" stroke-linejoin="round" stroke-linecap="round"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}/>`); if (s.endDot !== false && sp.length) { const e = sp[sp.length - 1]; P.push(`<circle cx="${xs(e[0])}" cy="${ys(e[1])}" r="4" fill="${s.endColor || s.color}" stroke="var(--surface)" stroke-width="2"/>`); } });
+    P.push('</g>');
+    if (o.cursorDay != null && o.cursorDay >= x0 && o.cursorDay <= x1) P.push(`<line x1="${xs(o.cursorDay)}" x2="${xs(o.cursorDay)}" y1="${m.t}" y2="${m.t + ph}" stroke="var(--accent)" stroke-width="1.5"/><text x="${xs(o.cursorDay) + 4}" y="${m.t + 11}" font-size="10.5" fill="var(--accent)">${o.cursorLabel || 'viewing'}</text>`);
+    P.push(`<g class="hover" style="display:none"><line class="hx" x1="0" x2="0" y1="${m.t}" y2="${m.t + ph}" stroke="var(--ink-3)" stroke-width="1"/>${o.series.map((s) => `<circle class="hd" r="4.5" fill="${s.color}" stroke="var(--surface)" stroke-width="2" style="display:none"/>`).join('')}</g>`);
+    P.push(`<rect class="hit" x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="transparent" style="cursor:${o.onClick ? 'pointer' : 'crosshair'}"/>`);
+    P.push('</svg>');
+    host.innerHTML = P.join('');
+    const svg = host.firstElementChild; const tip = el('div', { class: 'tip' }); host.appendChild(tip); const hover = svg.querySelector('.hover'), hx = svg.querySelector('.hx'), hds = $$('.hd', svg); const hit = svg.querySelector('.hit');
+    const toDay = evt => { const r = svg.getBoundingClientRect(); const px = (evt.clientX - r.left) * (W / r.width); return x0 + (px - m.l) / pw * (x1 - x0); };
+    const nearest = (s, day) => { if (!s.t.length) return null; let i = DM.idxAt(s, day); if (i < 0) i = 0; if (i + 1 < s.t.length && Math.abs(s.t[i + 1] - day) < Math.abs(s.t[i] - day)) i++; return i; };
+    hit.addEventListener('pointermove', evt => {
+      const day = toDay(evt); let anchorDay = null; const rows = [];
+      o.series.forEach((s, si) => { if (s.hidden || !s.t.length) { hds[si].style.display = 'none'; return; } const i = nearest(s, day); if (anchorDay == null) anchorDay = s.t[i]; const j = DM.idxAt(s, anchorDay + (o.snapTol || 0)); const k = (j >= 0 && Math.abs(s.t[j] - anchorDay) <= Math.abs(s.t[i] - anchorDay)) ? j : i; const t = s.t[k], v = s.v[k]; if (Math.abs(t - anchorDay) > (x1 - x0) / pw * 6 + (o.snapTol || 0) && si > 0) { hds[si].style.display = 'none'; return; } hds[si].setAttribute('cx', xs(t)); hds[si].setAttribute('cy', ys(Math.max(lo, Math.min(hi, v)))); hds[si].style.display = ''; rows.push({ s, v, t }); });
+      if (anchorDay == null) return; hover.style.display = ''; hx.setAttribute('x1', xs(anchorDay)); hx.setAttribute('x2', xs(anchorDay));
+      tip.innerHTML = ''; tip.appendChild(el('div', { class: 'd', text: (o.tipDate || fmtDay)(anchorDay) }));
+      for (const r of rows) { const row = el('div', { class: 'r' }); const left = el('span'); const key = el('i'); key.style.setProperty('--kc', r.s.color); left.appendChild(key); left.appendChild(document.createTextNode(r.s.name)); row.appendChild(left); row.appendChild(el('b', { text: (r.s.fmt || o.yFmt || (v => v))(r.v) })); tip.appendChild(row); }
+      if (o.tipExtra) { const ex = o.tipExtra(anchorDay); if (ex) tip.appendChild(el('div', { class: 'd', text: ex })); }
+      tip.style.display = 'block'; const r = svg.getBoundingClientRect(); const px = (evt.clientX - r.left); const left = px + 14 + tip.offsetWidth > host.clientWidth ? px - tip.offsetWidth - 10 : px + 14; tip.style.left = left + 'px'; tip.style.top = Math.max(0, (evt.clientY - r.top) - 10) + 'px';
+    });
+    hit.addEventListener('pointerleave', () => { hover.style.display = 'none'; tip.style.display = 'none'; });
+    if (o.onClick) hit.addEventListener('click', evt => o.onClick(Math.round(toDay(evt))));
+  }
+  const sparkline = (host, t, v, opts) => { opts = opts || {}; const W = opts.w || host.clientWidth || 200, H = opts.h || 44, p = 5; const pts = []; for (let i = 0; i < t.length; i++) if (v[i] != null) pts.push([t[i], v[i]]); if (pts.length < 2) { host.innerHTML = ''; return; } const x0 = pts[0][0], x1 = pts[pts.length - 1][0]; let lo = opts.min != null ? opts.min : Math.min(...pts.map(p => p[1])), hi = opts.max != null ? opts.max : Math.max(...pts.map(p => p[1])); if (lo === hi) { lo -= 1; hi += 1; } const xs = d => p + (d - x0) / (x1 - x0 || 1) * (W - 2 * p), ys = y => p + (hi - y) / (hi - lo) * (H - 2 * p); let d = ''; pts.forEach((q, i) => { d += (i ? 'L' : 'M') + xs(q[0]).toFixed(1) + ' ' + ys(q[1]).toFixed(1); }); const e = pts[pts.length - 1]; host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true">${opts.bands ? opts.bands.map(b => `<rect x="0" y="${ys(Math.min(hi, b.to))}" width="${W}" height="${Math.max(0, ys(Math.max(lo, b.from)) - ys(Math.min(hi, b.to)))}" fill="${b.color}" opacity="0.10"/>`).join('') : ''}<path d="${d}" fill="none" stroke="var(--ink-2)" stroke-width="1.5"/><circle cx="${xs(e[0])}" cy="${ys(e[1])}" r="3.5" fill="${opts.endColor || 'var(--ink)'}" stroke="var(--surface)" stroke-width="1.5"/></svg>`; };
+  const levelBands = () => DM.LEVELS.map(L => ({ from: L.from, to: Math.min(5, L.to), color: `var(--l${L.n})` }));
+  const compositeBands = () => DM.COMPOSITE_LEVELS.map(L => ({ from: L.from, to: Math.min(5, L.to), color: `var(--l${L.n})` }));
+  const recessionShades = () => DM.recessions(state.model.S).map(r => ({ from: r.start, to: r.end || state.today }));
+
+  // ---------------- gauge ----------------
+  function gaugeSVG(score, ghost) {
+    const cx = 170, cy = 178, r = 126, sw = 22; const ang = pos => Math.PI * (1 - Math.max(0, Math.min(5, pos)) / 5); const pt = (a, rr) => [cx + rr * Math.cos(a), cy - rr * Math.sin(a)];
+    const seg = (p0, p1, col) => { const gap = 0.02; const a0 = ang(p0) - (p0 > 0 ? gap : 0), a1 = ang(p1) + (p1 < 5 ? gap : 0); const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${sw}"/>`; };
+    let s = ''; DM.COMPOSITE_LEVELS.forEach((L, i) => { s += seg(i, i + 1, `var(--l${L.n})`); });
+    // boundary labels: the composite values where one band hands over to the next
+    const labels = [1, ...DM.COMPOSITE_LEVELS.slice(1).map(L => L.from), 5];
+    labels.forEach((v, k) => { const [x, y] = pt(ang(k), r - sw / 2 - 11); s += `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--ink-3)">${k === 0 || k === 5 ? v : v.toFixed(1)}</text>`; });
+    const deg = s0 => (s0 == null ? -90 : -90 + DM.bandPosition(s0) / 5 * 180);
+    if (ghost != null) { const [gx, gy] = pt(ang(DM.bandPosition(ghost)), r + sw / 2 + 9); s += `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"><title>a month ago</title></circle>`; }
+    const ro = r + sw / 2, tipR = ro + 3, baseR = ro + 15;
+    s += `<g class="needle" style="transform-origin:${cx}px ${cy}px;transform:rotate(${deg(score)}deg);transition:transform .6s cubic-bezier(.2,.7,.2,1)"><line x1="${cx}" y1="${cy - r + sw / 2 - 1}" x2="${cx}" y2="${cy - r - sw / 2 + 1}" stroke="var(--surface)" stroke-width="3"/><line x1="${cx}" y1="${cy - r + sw / 2 - 1}" x2="${cx}" y2="${cy - r - sw / 2 + 1}" stroke="var(--ink)" stroke-width="1.5"/><path d="M${cx - 7} ${cy - baseR}L${cx} ${cy - tipR}L${cx + 7} ${cy - baseR}Z" fill="var(--ink)"/></g>`;
+    return `<svg viewBox="0 0 340 200" role="img" aria-label="Composite score gauge">${s}</svg>`;
+  }
+
+  // ---------------- rendering ----------------
+  function renderFreshness() {
+    const g = state.data.generated_at ? new Date(state.data.generated_at) : null; const ageH = g ? (Date.now() - g.getTime()) / 36e5 : null;
+    const f = $('#freshness'); f.innerHTML = ''; const d = el('span', { class: 'dot' + (ageH == null ? ' bad' : ageH > 96 ? ' bad' : ageH > 36 ? ' warn' : '') });
+    const when = g ? g.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'unknown';
+    f.appendChild(d); f.appendChild(document.createTextNode(`Data refreshed ${when} · ${state.source}`));
+    const bad = Object.entries(state.data.status || {}).filter(([k, v]) => !v.ok); const ban = $('#dataBanner'); ban.innerHTML = ''; ban.hidden = true;
+    if (ageH != null && ageH > 96) { ban.hidden = false; ban.className = 'banner warn'; ban.appendChild(el('div', { class: 'grow', text: `This data is ${Math.round(ageH / 24)} days old. The daily refresh may have stalled; the page still works, but readings may be stale.` })); }
+  }
+
+  function renderHero() {
+    const a = viewAgg(); const s = a.composite; const L = lvC(s);
+    $('#gauge').innerHTML = gaugeSVG(s, compositeAgo(1));
+    $('#gaugeScore').textContent = fmtScore(s);
+    const gl = $('#gaugeLevel'); gl.innerHTML = ''; gl.appendChild(el('span', { class: 'swatch', style: `background:var(--l${L ? L.n : 1})` })); gl.appendChild(document.createTextNode(L ? `${L.n} · ${L.name}` : '–'));
+    $('#gaugeDesc').textContent = L ? L.desc : '';
+    const d1 = compositeAgo(1), d3 = compositeAgo(3), d12 = compositeAgo(12); const dd = $('#gaugeDeltas'); dd.innerHTML = '';
+    for (const [lab, v] of [['1 month', d1], ['3 months', d3], ['12 months', d12]]) { const diff = (s != null && v != null) ? s - v : null; dd.appendChild(el('span', null, `vs ${lab} ago `, el('b', { text: fmtDelta(diff) }))); }
+    const lensBox = $('#lenses'); lensBox.innerHTML = '';
+    for (const [key, name, desc] of [['macro', 'Economy', 'Rates & policy, labor, growth, consumer'], ['market', 'Markets', 'Credit conditions and market stress']]) { const v = a[key]; const box = el('div', { class: 'lens' }); box.appendChild(el('div', { class: 'lens-head' }, el('span', { class: 't', text: name }), el('span', { class: 's' }, chipC(v)))); const meter = el('div', { class: 'meter', role: 'img', 'aria-label': `${name} score ${fmtScore(v)}` }); const pos = DM.bandPosition(v); for (let k = 1; k <= 5; k++) { const seg = el('i'); const pct = pos == null ? 0 : Math.max(0, Math.min(1, pos - (k - 1))); const b = el('b'); b.style.setProperty('--fill', (pct * 100).toFixed(0) + '%'); seg.appendChild(b); meter.appendChild(seg); } box.appendChild(meter); box.appendChild(el('div', { class: 'meter-scale' }, el('span', { text: '1' }), el('span', { text: desc }), el('span', { text: '5' }))); lensBox.appendChild(box); }
+    const diff = $('#diffusion'); diff.innerHTML = ''; const total = a.counts.reduce((x, y) => x + y, 0) || 1; const bar = el('div', { class: 'bar', role: 'img', 'aria-label': 'Indicators by level' }); a.counts.forEach((c, i) => { if (!c) return; const sp = el('span'); sp.style.width = (c / total * 100) + '%'; sp.style.background = `var(--l${i + 1})`; bar.appendChild(sp); }); diff.appendChild(el('div', { class: 'lens-head' }, el('span', { class: 't', text: `${a.n} indicators by level` }), el('span', { class: 's small muted', text: `${Math.round(a.coverage * 100)}% of weight available` }))); diff.appendChild(bar);
+    const leg = el('div', { class: 'legend' }); DM.LEVELS.forEach((Lx, i) => { const k = el('span'); const sw = el('i'); sw.style.background = `var(--l${Lx.n})`; k.appendChild(sw); k.appendChild(document.createTextNode(`${Lx.name} ${a.counts[i]}`)); leg.appendChild(k); }); diff.appendChild(leg);
+    // summary sentence
+    const sm = $('#summary'); sm.innerHTML = '';
+    const ch = DM.changesSince(state.model, viewDay(), DM.addMonths(viewDay(), -1), state.asOf == null);
+    const high = state.model.ind.filter(x => a.byInd[x.def.id] && a.byInd[x.def.id].score >= 3.4).sort((p, q) => a.byInd[q.def.id].score - a.byInd[p.def.id].score);
+    const dir = (s != null && d1 != null) ? (s - d1 > 0.05 ? 'up' : s - d1 < -0.05 ? 'down' : 'unchanged') : null;
+    const p1 = el('p'); p1.appendChild(el('b', { text: L ? `${L.name} (${fmtScore(s)}).` : 'No reading.' })); if (dir) p1.appendChild(document.createTextNode(dir === 'unchanged' ? ' Unchanged from a month ago.' : ` ${dir === 'up' ? 'Up' : 'Down'} ${Math.abs(s - d1).toFixed(1)} from a month ago.`)); p1.appendChild(document.createTextNode(` Economy ${fmtScore(a.macro)}, markets ${fmtScore(a.market)}.`)); sm.appendChild(p1);
+    const p2 = el('p'); if (high.length) { p2.appendChild(document.createTextNode(`${high.length} of ${a.n} indicators read High or Severe: `)); high.slice(0, 6).forEach((x, i) => { if (i) p2.appendChild(document.createTextNode(', ')); p2.appendChild(el('span', { class: 'ind', text: x.def.short, onclick: () => openIndicator(x.def.id) })); }); if (high.length > 6) p2.appendChild(document.createTextNode(` and ${high.length - 6} more`)); p2.appendChild(document.createTextNode('.')); } else p2.appendChild(document.createTextNode(`None of the ${a.n} indicators read High or Severe.`)); sm.appendChild(p2);
+    const movers = ch.moves.filter(mv => Math.abs(mv.d) >= 0.3).slice(0, 4); if (movers.length) { const p3 = el('p'); p3.appendChild(document.createTextNode('Biggest moves over the month: ')); movers.forEach((mv, i) => { if (i) p3.appendChild(document.createTextNode(', ')); p3.appendChild(el('span', { class: 'ind', text: mv.name, onclick: () => openIndicator(mv.id) })); p3.appendChild(document.createTextNode(` ${fmtDelta(mv.d)}`)); }); p3.appendChild(document.createTextNode('.')); sm.appendChild(p3); }
+  }
+
+  function renderAsOf() {
+    const sl = $('#asofSlider'); sl.max = state.asOfMax; const idx = state.asOf == null ? state.asOfMax : histAt(state.asOf); sl.value = idx == null ? state.asOfMax : idx;
+    $('#asofWhen').textContent = state.asOf == null ? 'Today' : fmtMonth(state.asOf);
+    document.body.classList.toggle('timetravel', state.asOf != null);
+    const b = $('#asofBanner'); b.hidden = state.asOf == null; if (state.asOf != null) { b.innerHTML = ''; b.className = 'banner info'; b.appendChild(el('div', { class: 'grow' }, el('b', { text: `Viewing as of ${fmtMonth(state.asOf)}. ` }), 'Values are those that would have been published by then (release lags applied); indicator data is as currently revised, which flatters the historical read slightly. ')); b.appendChild(el('button', { class: 'btn sm', text: 'Back to today', onclick: () => { state.asOf = null; renderAll(); } })); }
+    $('#btnToday').hidden = state.asOf == null;
+  }
+
+  function renderHistory() {
+    const h = state.hist; const days = RANGES[state.range]; let xTo = state.today; let xFrom = days ? xTo - days : h.t[0];
+    if (state.asOf != null && days && state.asOf < xFrom + days * 0.1) { xFrom = state.asOf - Math.round(days * 0.65); xTo = Math.min(state.today, state.asOf + Math.round(days * 0.35)); }
+    const host = $('#histChart');
+    lineChart(host, { xFrom, xTo, yMin: 1, yMax: 5, yTicks: [1, 2, 3, 4, 5], height: host.clientWidth < 600 ? 220 : 280, aria: 'Composite score history', bands: compositeBands(), shades: recessionShades(), cursorDay: state.asOf, cursorLabel: 'viewing', tipDate: d => (d === state.today ? 'Today (' + fmtDay(d) + ')' : fmtMonth(d)),
+      series: [
+        { name: 'Composite', t: h.t, v: h.composite, color: 'var(--ink)', width: 2.25, fmt: fmtScore },
+        { name: 'Economy', t: h.t, v: h.macro, color: 'var(--accent)', width: 1.5, fmt: fmtScore, hidden: !state.lens.macro },
+        { name: 'Markets', t: h.t, v: h.market, color: 'var(--lens2)', width: 1.5, fmt: fmtScore, hidden: !state.lens.market },
+      ],
+      tipExtra: d => { const i = DM.idxAt({ t: h.t }, d); const c = i < 0 ? null : h.coverage[i]; const L = i < 0 ? null : lvC(h.composite[i]); return (L ? L.name + ' · ' : '') + (c != null ? Math.round(c * 100) + '% of indicator weight available' : ''); },
+      onClick: day => { let i = DM.idxAt({ t: h.t }, day); if (i < 0) i = 0; if (i + 1 < h.t.length && Math.abs(h.t[i + 1] - day) < Math.abs(h.t[i] - day)) i++; state.asOf = (i >= state.asOfMax) ? null : h.t[i]; renderAll(); } });
+    const lg = $('#histLegend'); lg.innerHTML = '';
+    const mk = (name, color, key) => { const b = el('button', { class: 'key', 'aria-pressed': key ? String(state.lens[key]) : 'true', onclick: key ? () => { state.lens[key] = !state.lens[key]; renderHistory(); } : null }); const i = el('i'); i.style.setProperty('--kc', color); b.appendChild(i); b.appendChild(document.createTextNode(name)); return b; };
+    lg.appendChild(mk('Composite', 'var(--ink)')); lg.appendChild(mk('Economy lens', 'var(--accent)', 'macro')); lg.appendChild(mk('Markets lens', 'var(--lens2)', 'market'));
+    const rk = el('span', { class: 'key' }); const ri = el('i', { class: 'box' }); ri.style.setProperty('--kc', 'var(--ink-3)'); rk.appendChild(ri); rk.appendChild(document.createTextNode('NBER recession')); lg.appendChild(rk);
+    lg.appendChild(el('span', { class: 'muted', text: 'Click the chart to view the board as of that month.' }));
+  }
+
+  function renderPillars() {
+    const a = viewAgg(); const host = $('#pillars'); host.innerHTML = ''; const h = state.hist; const day = viewDay();
+    const i1 = histAt(DM.addMonths(day, -1)); const prev = i1 == null ? null : DM.aggregate(state.model, h.t[Math.min(i1, state.asOfMax - 1)], false);
+    for (const p of state.model.pillars) {
+      const ps = a.pillars[p.id]; const card = el('div', { class: 'card pillar' });
+      const head = el('div', { class: 'pillar-head' }, el('div', null, el('div', { class: 'name', text: p.name }), el('div', { class: 'w', text: `${p.weight}% of composite · ${ps.n} indicators` })), el('div', { class: 'pillar-score' }, el('div', { class: 'v ' + lvClassC(ps.score), text: fmtScore(ps.score) }), chipNameC(ps.score)));
+      card.appendChild(head); host.appendChild(card);
+      const sp = el('div', { class: 'pillar-spark' }); card.appendChild(sp);
+      const idxEnd = state.asOf == null ? h.t.length - 1 : histAt(state.asOf); const i0 = Math.max(0, idxEnd - 60); sparkline(sp, h.t.slice(i0, idxEnd + 1), h.pillars[p.id].slice(i0, idxEnd + 1), { min: 1, max: 5, bands: compositeBands(), endColor: `var(--l${lvC(ps.score) ? lvC(ps.score).n : 1})` });
+      const ul = el('ul', { class: 'pillar-list' });
+      for (const x of state.model.ind.filter(x => x.def.pillar === p.id)) {
+        const r = a.byInd[x.def.id]; const li = el('li', { class: x.enabled && x.available ? '' : 'off', tabindex: '0', role: 'button', onclick: () => openIndicator(x.def.id), onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIndicator(x.def.id); } } });
+        li.appendChild(el('span', { class: 'n', text: x.def.short }));
+        const val = el('span', { class: 'v' }); if (r) { val.textContent = x.def.fmt(r.value); const pr = prev && prev.byInd[x.def.id]; if (pr && pr.score != null && r.score != null) { const d = r.score - pr.score; if (Math.abs(d) >= 0.15) val.appendChild(el('span', { class: 'arrow ' + (d > 0 ? 'up' : 'down'), text: d > 0 ? '▲' : '▼', title: `score ${fmtDelta(d)} vs a month ago` })); } } else val.textContent = x.available ? 'no data' : 'not available';
+        li.appendChild(val); li.appendChild(chip(r ? r.score : null, false)); ul.appendChild(li);
+      }
+      card.appendChild(ul);
+    }
+  }
+
+  function renderTable() {
+    const a = viewAgg(); const day = viewDay(); const tb = $('#tblBody'); tb.innerHTML = '';
+    const i1 = histAt(DM.addMonths(day, -1)); const prev = i1 == null ? null : DM.aggregate(state.model, state.hist.t[Math.min(i1, state.asOfMax - 1)], false);
+    const rows = state.model.ind.map(x => { const r = a.byInd[x.def.id]; const pr = prev && prev.byInd[x.def.id]; return { x, r, pr, score: r ? r.score : null, pct: (r && x.available) ? DM.percentileOf(x.values, r.t, 3653) : null }; });
+    const k = state.sort.key, dir = state.sort.dir; rows.sort((p, q) => { let u, v; if (k === 'name') { u = p.x.def.short; v = q.x.def.short; return dir * u.localeCompare(v); } if (k === 'pillar') { u = p.x.def.pillar; v = q.x.def.pillar; return dir * (u === v ? (q.score || 0) - (p.score || 0) : u.localeCompare(v)); } if (k === 'score') { u = p.score == null ? -1 : p.score; v = q.score == null ? -1 : q.score; } else if (k === 'delta') { u = (p.r && p.pr) ? p.r.score - p.pr.score : -9; v = (q.r && q.pr) ? q.r.score - q.pr.score : -9; } else if (k === 'pct') { u = p.pct == null ? -1 : p.pct; v = q.pct == null ? -1 : q.pct; } else if (k === 'weight') { u = p.x.weight * (PILLAR_BY_ID[p.x.def.pillar].weight); v = q.x.weight * (PILLAR_BY_ID[q.x.def.pillar].weight); } return dir * (u - v); });
+    for (const row of rows) { const { x, r, pr } = row; const tr = el('tr', { class: 'row' + (x.enabled && x.available ? '' : ' off'), tabindex: '0', onclick: () => openIndicator(x.def.id), onkeydown: e => { if (e.key === 'Enter') openIndicator(x.def.id); } });
+      tr.appendChild(el('td', { class: 'name' }, el('div', { text: x.def.short }), el('div', { class: 'ep', text: x.def.name })));
+      tr.appendChild(el('td', { text: PILLAR_BY_ID[x.def.pillar].name }));
+      tr.appendChild(el('td', { class: 'r', text: r ? x.def.fmt(r.value) : (x.available ? 'no data' : 'unavailable') }));
+      tr.appendChild(el('td', { class: 'ep', text: r ? fmtObs(x, r.t) : '' }));
+      const d = (r && pr && r.score != null && pr.score != null) ? r.score - pr.score : null; tr.appendChild(el('td', { class: 'r', text: d == null ? '' : fmtDelta(d) }));
+      tr.appendChild(el('td', { class: 'r', text: r && r.score != null ? r.score.toFixed(2) : '' }));
+      tr.appendChild(el('td', null, chip(r ? r.score : null)));
+      const pc = el('td'); if (row.pct != null) { const w = el('span', { class: 'pct' }); const bar = el('i'); const b = el('b'); b.style.width = row.pct.toFixed(0) + '%'; bar.appendChild(b); w.appendChild(bar); w.appendChild(el('span', { class: 'ep', text: ordinal(row.pct) })); pc.appendChild(w); } tr.appendChild(pc);
+      const pweight = state.model.pillars.find(p => p.id === x.def.pillar).weight; const sumP = state.model.pillars.reduce((s, p) => s + p.weight, 0) || 1; const totalW = state.model.ind.filter(y => y.def.pillar === x.def.pillar && y.enabled && y.available).reduce((s, y) => s + y.weight, 0) || 1; const eff = x.enabled && x.available ? 100 * (pweight / sumP) * (x.weight / totalW) : 0; tr.appendChild(el('td', { class: 'r', text: eff.toFixed(1) + '%' }));
+      tb.appendChild(tr); }
+    $$('#tbl th[data-key]').forEach(th => th.setAttribute('aria-sort', th.dataset.key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'));
+  }
+
+  function renderBacktest() {
+    const bt = state.bt; const t1 = $('#btRecessions'); t1.innerHTML = '';
+    for (const r of bt.recessions) { const tr = el('tr'); tr.appendChild(el('td', { text: r.name })); for (const v of [r.m12, r.m6, r.m3, r.m0, r.peak]) tr.appendChild(el('td', { class: 'r' }, v == null ? el('span', { class: 'muted', text: '–' }) : chipC(v))); tr.appendChild(el('td', { text: r.lead == null ? 'none in the prior 18 months' : r.lead === 0 ? 'in the start month' : r.lead === 1 ? '1 month before' : `${r.lead} months before` })); t1.appendChild(tr); }
+    const t2 = $('#btStress'); t2.innerHTML = '';
+    for (const e of bt.stress) { const tr = el('tr'); tr.appendChild(el('td', { text: e.name })); tr.appendChild(el('td', { class: 'ep', text: fmtMonth(DM.ymdToDay(e.from)) + ' – ' + fmtMonth(DM.ymdToDay(e.to)) })); tr.appendChild(el('td', { class: 'r' }, e.peak == null ? el('span', { class: 'muted', text: '–' }) : chipC(e.peak))); t2.appendChild(tr); }
+  }
+
+  function renderReference() {
+    const host = $('#refGrid'); host.innerHTML = ''; const S = state.model.S;
+    for (const ref of DM.REFERENCE) { const s = S[ref.input]; const box = el('div', { class: 'ref' }); box.appendChild(el('div', { class: 't', text: ref.name })); if (!s) { box.appendChild(el('div', { class: 'note', text: 'Not available in the current data file. ' + ref.note })); host.appendChild(box); continue; } const horizon = ref.forward ? viewDay() + 370 : viewDay(); const r = DM.valueAt(s, horizon); const sp = el('div'); const i1 = DM.idxAt(s, horizon); const i0 = Math.max(0, i1 - 60); box.appendChild(el('div', null, el('div', { class: 'v', text: r ? ref.fmt(r.v) : '–' }), el('div', { class: 'ep', text: r ? (ref.forward ? 'for ' + fmtMonth(r.t) : fmtMonth(r.t)) : '' }))); box.appendChild(sp); sparkline(sp, s.t.slice(i0, i1 + 1), s.v.slice(i0, i1 + 1), { w: 140, h: 36, min: 0 }); box.appendChild(el('div', { class: 'note', text: ref.note })); host.appendChild(box); }
+  }
+
+  function renderMethod() {
+    const w = $('#weightsTbl'); w.innerHTML = '';
+    for (const p of state.model.pillars) { const tr = el('tr'); tr.appendChild(el('td', { text: p.name })); tr.appendChild(el('td', { class: 'r', text: p.weight + '%' })); tr.appendChild(el('td', { text: p.lens === 'macro' ? 'Economy' : 'Markets' })); tr.appendChild(el('td', { class: 'ep', text: state.model.ind.filter(x => x.def.pillar === p.id).map(x => `${x.def.short} ${x.weight}`).join(' · ') })); w.appendChild(tr); }
+    const ds = $('#dataStatus'); ds.innerHTML = ''; const gen = state.data.generated_at ? DM.dateToDay(new Date(state.data.generated_at)) : state.today;
+    const expect = { D: 6, W: 12, M: 50, Q: 130 };
+    for (const [id, s] of Object.entries(state.data.series)) { const st = (state.data.status || {})[id] || {}; const endDay = DM.ymdToDay(s.end); const age = gen - endDay; const lateBy = age - (expect[s.freq] || 60); const tr = el('tr'); const url = s.src === 'FRED' ? `https://fred.stlouisfed.org/series/${id}` : (state.data.sources || {})[s.src] || '#'; tr.appendChild(el('td', null, el('a', { href: url, target: '_blank', rel: 'noopener', text: id }))); tr.appendChild(el('td', { class: 'name', text: s.title })); tr.appendChild(el('td', { text: ({ D: 'Daily', W: 'Weekly', M: 'Monthly', Q: 'Quarterly' })[s.freq] || s.freq })); tr.appendChild(el('td', { text: s.src })); tr.appendChild(el('td', { class: 'r', text: s.end })); const flag = el('td'); if (st.ok === false) flag.appendChild(el('span', { class: 'chip l4', text: st.kept_previous ? 'fetch failed, kept previous' : 'failed' })); else if (lateBy > 0) flag.appendChild(el('span', { class: 'chip l3', text: 'later than usual' })); else flag.appendChild(el('span', { class: 'chip l1', text: 'current' })); if (st.error) flag.title = st.error; tr.appendChild(flag); ds.appendChild(tr); }
+    $('#genStamp').textContent = state.data.generated_at ? new Date(state.data.generated_at).toUTCString() : 'unknown';
+  }
+
+  function renderAll() { document.body.classList.add('loading-dim'); requestAnimationFrame(() => { renderAsOf(); renderHero(); renderHistory(); renderPillars(); renderTable(); renderBacktest(); renderReference(); renderMethod(); $('#customNote').hidden = !isCustomised(); document.body.classList.remove('loading-dim'); }); }
+
+  // ---------------- drawer ----------------
+  function valueAtScore(A, s) { const inc = A[4] > A[0]; const k = Math.min(3, Math.max(0, Math.floor(s - 1))); const f = s - 1 - k; return A[k] + (A[k + 1] - A[k]) * f; }
+  function anchorBands(A) { const b = [1.5, 2.5, 3.5, 4.5].map(s => valueAtScore(A, s)); const inc = A[4] > A[0]; const INF = 1e12; const out = []; for (let k = 0; k < 5; k++) { let lo, hi; if (inc) { lo = k === 0 ? -INF : b[k - 1]; hi = k === 4 ? INF : b[k]; } else { hi = k === 0 ? INF : b[k - 1]; lo = k === 4 ? -INF : b[k]; } out.push({ from: lo, to: hi, color: `var(--l${k + 1})`, opacity: 0.12 }); } return out; }
+  function openIndicator(id) {
+    const x = state.model.ind.find(i => i.def.id === id); if (!x) return; const keepScroll = state.openId === id ? $('#drawer').scrollTop : 0; state.openId = id; const d = x.def; const a = viewAgg(); const r = a.byInd[id];
+    const dr = $('#drawer'); const body = $('#drawerBody'); body.innerHTML = '';
+    $('#drawerCrumb').textContent = PILLAR_BY_ID[d.pillar].name; $('#drawerTitle').textContent = d.name;
+    if (!x.available) { body.appendChild(el('p', { class: 'muted', text: 'This indicator is not in the current data file (its source may be unavailable). ' + (d.optional ? 'It is optional and excluded from the composite until data arrives.' : '') })); body.appendChild(el('div', { class: 'rule-box' }, el('b', { text: 'Why it matters' }), d.why)); dr.classList.add('open'); $('#scrim').classList.add('open'); return; }
+    const k = el('div', { class: 'kpis' });
+    k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'Latest value' }), el('div', { class: 'v', text: r ? d.fmt(r.value) : '–' }), el('div', { class: 'ep', text: r ? fmtObs(x, r.t) : '' })));
+    k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'Score' }), el('div', { class: 'v' }, chip(r ? r.score : null)), el('div', { class: 'ep', text: x.curve && r ? ((x.curve.state[DM.idxAt(x.score, r.t)] || '') + (x.curve.lastInvEnd && x.curve.state[DM.idxAt(x.score, r.t)] !== 'normal' && x.curve.state[DM.idxAt(x.score, r.t)] !== 'inverted' ? ' · inversion ended ' + fmtDay(x.curve.lastInvEnd) : '')) : '' })));
+    const pct = r ? DM.percentileOf(x.values, r.t, 3653) : null; k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: '10-year percentile' }), el('div', { class: 'v', text: pct == null ? '–' : ordinal(pct) }), el('div', { class: 'ep', text: 'of readings in the trailing 10 years' })));
+    const prevR = (() => { const i1 = histAt(DM.addMonths(viewDay(), -1)); if (i1 == null) return null; return DM.readIndicator(x, state.hist.t[Math.min(i1, state.asOfMax - 1)], false); })(); k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'A month ago' }), el('div', { class: 'v sm', text: prevR ? d.fmt(prevR.value) : '–' }), el('div', { class: 'ep', text: prevR && r && prevR.score != null && r.score != null ? 'score ' + fmtDelta(r.score - prevR.score) : '' })));
+    if (x.aux) { const av = r ? DM.valueAt(x.aux.series, r.t, 10) : null; k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: x.aux.name }), el('div', { class: 'v sm', text: av ? x.aux.fmt(av.v) : '–' }))); }
+    body.appendChild(k);
+    // range row for the detail charts
+    const rr = el('div', { class: 'ctl-group' }, el('span', { class: 'ctl-label', text: 'Range' })); const seg = el('div', { class: 'seg' }); const cur = state.drawerRange || state.range; for (const key of Object.keys(RANGES)) seg.appendChild(el('button', { text: key, 'aria-pressed': String(key === cur), onclick: () => { state.drawerRange = key; openIndicator(id); } })); rr.appendChild(seg); body.appendChild(rr);
+    const chartHost = el('div', { class: 'chart-wrap' }); body.appendChild(chartHost); const days = RANGES[cur]; const xTo = state.today, xFrom = days ? xTo - days : Math.max(x.values.t[0], DM.ymdToDay('1985-01-01'));
+    const ser = [{ name: d.short, t: x.values.t, v: x.values.v, color: 'var(--ink)', width: 2, fmt: d.fmt }];
+    body.appendChild(el('div', { class: 'legend-row', style: 'padding:0' }, el('span', { class: 'muted small', text: 'Shaded bands show the score levels implied by the thresholds; grey columns are NBER recessions.' })));
+    body.appendChild(el('h3', { text: 'Score history' })); const scoreHost = el('div', { class: 'chart-wrap' }); body.appendChild(scoreHost);
+    requestAnimationFrame(() => { lineChart(chartHost, { xFrom, xTo, height: 240, aria: d.name, bands: anchorBands(x.anchors), shades: recessionShades(), cursorDay: state.asOf, cursorLabel: 'viewing', yFmt: v => d.fmt(v).replace(' y/y', '').replace(/^\+/, ''), series: ser }); lineChart(scoreHost, { xFrom, xTo, yMin: 1, yMax: 5, yTicks: [1, 2, 3, 4, 5], height: 120, aria: d.name + ' score history', bands: levelBands(), shades: recessionShades(), cursorDay: state.asOf, series: [{ name: 'Score', t: x.score.t, v: x.score.v, color: 'var(--accent)', width: 1.75, fmt: fmtScore }] }); });
+    body.appendChild(el('div', { class: 'rule-box' }, el('b', { text: 'Rule' }), d.rule)); body.appendChild(el('div', { class: 'rule-box' }, el('b', { text: 'Why it matters' }), d.why));
+    // thresholds editor
+    const te = el('div'); te.appendChild(el('h3', { text: 'Thresholds (value at each score)' })); const an = el('div', { class: 'anchors' }); const inputs = [];
+    x.anchors.forEach((v, i) => { const inp = el('input', { type: 'number', step: 'any', value: String(+v.toFixed(4)), id: `anc-${id}-${i}`, 'aria-label': `value at score ${i + 1}` }); inputs.push(inp); const lab = el('label', { class: 'l' + (i + 1) }, el('span', { text: `Score ${i + 1}` }), inp); an.appendChild(lab); });
+    te.appendChild(an); const custom = !!(state.settings.anchors && state.settings.anchors[id]);
+    te.appendChild(el('p', { class: 'small muted', style: 'margin-top:6px', text: (d.scorer ? 'Editing thresholds switches this indicator to the plain level rule (the built-in momentum or cycle logic is paused until you reset). ' : '') + (custom ? 'Custom thresholds are in use.' : 'Default thresholds.') }));
+    const btns = el('div', { class: 'row-btns', style: 'margin-top:8px' }); btns.appendChild(el('button', { class: 'btn sm primary', text: 'Apply thresholds', onclick: () => { const vals = inputs.map(i => parseFloat(i.value)); if (vals.some(v => !Number.isFinite(v))) { toast('Enter a number for every score'); return; } const inc = vals[4] > vals[0]; for (let i = 1; i < 5; i++) if (inc ? vals[i] < vals[i - 1] : vals[i] > vals[i - 1]) { toast('Thresholds must run in one direction'); return; } state.settings.anchors[id] = vals; saveSettings(); compute(); renderAll(); openIndicator(id); toast('Thresholds applied'); } })); if (custom) btns.appendChild(el('button', { class: 'btn sm', text: 'Reset to default', onclick: () => { delete state.settings.anchors[id]; saveSettings(); compute(); renderAll(); openIndicator(id); } })); te.appendChild(btns); body.appendChild(te);
+    // weight + include
+    const wrow = el('div', { class: 'row-btns' }); const lab = el('label', { class: 'switch' }); const cb = el('input', { type: 'checkbox', id: `inc-${id}` }); cb.checked = x.enabled; cb.addEventListener('change', () => { if (cb.checked) delete state.settings.disabled[id]; else state.settings.disabled[id] = true; saveSettings(); compute(); renderAll(); openIndicator(id); }); lab.appendChild(cb); lab.appendChild(document.createTextNode('Include in composite')); wrow.appendChild(lab);
+    const wl = el('label', { class: 'switch' }, 'Weight within pillar '); const wi = el('input', { type: 'number', class: 'winput', min: '0', max: '100', step: '5', value: String(x.weight), id: `w-${id}` }); wi.addEventListener('change', () => { const v = parseFloat(wi.value); if (!Number.isFinite(v) || v < 0) return; if (v === d.weight) delete state.settings.weights[id]; else state.settings.weights[id] = v; saveSettings(); compute(); renderAll(); openIndicator(id); }); wl.appendChild(wi); wrow.appendChild(wl); body.appendChild(wrow);
+    const src = state.data.series[d.inputs[0]]; body.appendChild(el('p', { class: 'small muted' }, 'Source series: ', ...d.inputs.flatMap((sid, i) => [i ? ', ' : '', el('a', { href: (state.data.series[sid] && state.data.series[sid].src === 'FRED') ? `https://fred.stlouisfed.org/series/${sid}` : '#', target: '_blank', rel: 'noopener', text: sid })]), src ? ` · last observation ${src.end}` : '', ` · publication lag assumed ${d.lag} days for the historical view.`));
+    dr.classList.add('open'); $('#scrim').classList.add('open'); dr.scrollTop = keepScroll; if (!keepScroll) $('#drawerClose').focus();
+  }
+  function closeOverlays() { $('#drawer').classList.remove('open'); $('#scrim').classList.remove('open'); $('#settings').classList.remove('open'); state.openId = null; }
+
+  // ---------------- settings modal ----------------
+  const PRESETS = { Default: null, 'Equal weights': { rates: 1, credit: 1, labor: 1, growth: 1, consumer: 1, market: 1 }, 'Economy focus': { rates: 20, credit: 15, labor: 25, growth: 25, consumer: 15, market: 0 }, 'Markets focus': { rates: 15, credit: 30, labor: 10, growth: 10, consumer: 5, market: 30 } };
+  function openSettings() {
+    const box = $('#settingsBody'); box.innerHTML = '';
+    box.appendChild(el('p', { class: 'small muted', text: 'Pillar weights set how much each group of indicators counts in the composite. They are normalised to 100%. Settings are saved in this browser only.' }));
+    const pr = el('div', { class: 'presets' }); for (const name of Object.keys(PRESETS)) pr.appendChild(el('button', { class: 'btn sm', text: name, onclick: () => { const p = PRESETS[name]; state.settings.pillarWeights = p ? Object.fromEntries(DM.PILLARS.map(x => [x.id, p[x.id] * (name === 'Equal weights' ? 100 / 6 : 1)])) : {}; saveSettings(); compute(); renderAll(); openSettings(); } })); box.appendChild(pr);
+    const total = state.model.pillars.reduce((s, p) => s + p.weight, 0) || 1;
+    for (const p of state.model.pillars) { const row = el('div', { class: 'wrow' }); row.appendChild(el('span', { text: p.name })); const sl = el('input', { type: 'range', min: '0', max: '40', step: '1', value: String(Math.round(p.weight)), id: `pw-${p.id}` }); const out = el('span', { class: 'pw', text: Math.round(p.weight / total * 100) + '%' }); sl.addEventListener('input', () => { out.textContent = sl.value + ' →'; }); sl.addEventListener('change', () => { state.settings.pillarWeights = Object.fromEntries(state.model.pillars.map(q => [q.id, q.id === p.id ? parseFloat(sl.value) : q.weight])); saveSettings(); compute(); renderAll(); openSettings(); }); row.appendChild(sl); row.appendChild(out); box.appendChild(row); }
+    box.appendChild(el('h3', { text: 'Indicators in the composite' })); const tg = el('div', { class: 'ind-toggles' });
+    for (const x of state.model.ind) { const lab = el('label', { class: 'switch' }); const cb = el('input', { type: 'checkbox', id: `tg-${x.def.id}` }); cb.checked = x.enabled; cb.disabled = !x.available; cb.addEventListener('change', () => { if (cb.checked) delete state.settings.disabled[x.def.id]; else state.settings.disabled[x.def.id] = true; saveSettings(); compute(); renderAll(); }); lab.appendChild(cb); lab.appendChild(document.createTextNode(x.def.short + (x.available ? '' : ' (no data)'))); tg.appendChild(lab); }
+    box.appendChild(tg);
+    box.appendChild(el('h3', { text: 'Save or share your settings' })); const ta = el('textarea', { class: 'json', id: 'settingsJson' }); ta.value = JSON.stringify(state.settings); box.appendChild(ta);
+    const rb = el('div', { class: 'row-btns' }); rb.appendChild(el('button', { class: 'btn sm', text: 'Copy settings', onclick: () => copyText(ta.value, 'Settings copied') })); rb.appendChild(el('button', { class: 'btn sm', text: 'Apply pasted settings', onclick: () => { try { const s = JSON.parse(ta.value); state.settings = Object.assign(emptySettings(), s); saveSettings(); compute(); renderAll(); openSettings(); toast('Settings applied'); } catch (e) { toast('That is not valid settings JSON'); } } })); rb.appendChild(el('button', { class: 'btn sm', text: 'Reset everything to defaults', onclick: () => { state.settings = emptySettings(); saveSettings(); compute(); renderAll(); openSettings(); toast('Defaults restored'); } })); box.appendChild(rb);
+    $('#settings').classList.add('open'); $('#scrim').classList.add('open');
+  }
+
+  // ---------------- export ----------------
+  function scoresCSV() { const a = viewAgg(); const rows = [['indicator', 'pillar', 'as_of_date', 'value', 'unit', 'score', 'level', 'weight_in_pillar', 'pillar_weight', 'included']]; for (const x of state.model.ind) { const r = a.byInd[x.def.id]; rows.push([x.def.short, PILLAR_BY_ID[x.def.pillar].name, r ? DM.dayToYmd(r.t) : '', r ? r.value : '', x.def.unit, r && r.score != null ? r.score.toFixed(3) : '', r && r.score != null ? lv(r.score).name : '', x.weight, state.model.pillars.find(p => p.id === x.def.pillar).weight, x.enabled && x.available ? 'yes' : 'no']); } rows.push([]); rows.push(['composite', '', DM.dayToYmd(viewDay()), '', '', a.composite == null ? '' : a.composite.toFixed(3), a.composite == null ? '' : lvC(a.composite).name]); rows.push(['economy lens', '', '', '', '', a.macro == null ? '' : a.macro.toFixed(3)]); rows.push(['markets lens', '', '', '', '', a.market == null ? '' : a.market.toFixed(3)]); rows.push([]); rows.push(['composite history (month-end, release lags applied)']); rows.push(['date', 'composite', 'economy', 'markets', 'coverage']); state.hist.t.forEach((t, i) => rows.push([DM.dayToYmd(t), fmtN(state.hist.composite[i]), fmtN(state.hist.macro[i]), fmtN(state.hist.market[i]), fmtN(state.hist.coverage[i])])); return rows.map(r => r.map(c => { const s = c == null ? '' : String(c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n'); }
+  const fmtN = v => (v == null ? '' : (+v).toFixed(3));
+  async function exportScores() { const csv = scoresCSV(); if (state.dl) { try { await state.dl.save({ filename: 'downturn-monitor-scores-' + DM.dayToYmd(viewDay()) + '.csv', data: csv }); toast('Saved'); return; } catch (e) { if (e && e.code === 'declined') return; } } copyText(csv, 'Scores copied as CSV (download not available in this view)'); }
+  function copyText(text, msg) { const done = () => toast(msg || 'Copied'); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done); }
+  function fallbackCopy(text, done) { const ta = el('textarea', { style: 'position:fixed;opacity:0' }); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Select the text in the settings panel to copy it'); } ta.remove(); }
+  let toastT; function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+
+  // ---------------- wiring ----------------
+  function wire() {
+    $('#btnTheme').addEventListener('click', () => applyTheme(state.theme === 'system' ? 'light' : state.theme === 'light' ? 'dark' : 'system'));
+    $('#btnSettings').addEventListener('click', openSettings); $('#btnExport').addEventListener('click', exportScores);
+    $('#scrim').addEventListener('click', closeOverlays); $('#drawerClose').addEventListener('click', closeOverlays); $('#settingsClose').addEventListener('click', closeOverlays); $('#settings').addEventListener('click', e => { if (e.target.id === 'settings') closeOverlays(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOverlays(); });
+    $$('#rangeSeg button').forEach(b => b.addEventListener('click', () => { state.range = b.dataset.range; state.drawerRange = null; $$('#rangeSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderHistory(); }));
+    const sl = $('#asofSlider'); sl.addEventListener('input', () => { const i = parseInt(sl.value, 10); $('#asofWhen').textContent = i >= state.asOfMax ? 'Today' : fmtMonth(state.hist.t[i]); }); sl.addEventListener('change', () => { const i = parseInt(sl.value, 10); state.asOf = i >= state.asOfMax ? null : state.hist.t[i]; renderAll(); });
+    $('#btnToday').addEventListener('click', () => { state.asOf = null; renderAll(); });
+    $$('#tbl th[data-key]').forEach(th => th.addEventListener('click', () => { const k = th.dataset.key; if (state.sort.key === k) state.sort.dir *= -1; else state.sort = { key: k, dir: k === 'name' || k === 'pillar' ? 1 : -1 }; renderTable(); }));
+    $('#fileInput').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { const j = JSON.parse(await f.text()); if (!j.series) throw new Error('no series'); state.data = j; state.source = 'local file ' + f.name; $('#loadError').hidden = true; $('#main').hidden = false; renderFreshness(); compute(); renderAll(); } catch (err) { toast('That file is not a Downturn Monitor data file'); } });
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (state.model) { renderHistory(); renderPillars(); if (state.openId) openIndicator(state.openId); } }, 150); });
+    const repo = $('#repoLink'); if (CONFIG.repoUrl) { repo.href = CONFIG.repoUrl; } else repo.hidden = true;
+  }
+
+  async function boot() {
+    try { applyTheme(localStorage.getItem('dm.theme') || 'system'); } catch (e) { applyTheme('system'); }
+    loadSettings(); wire();
+    if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then(ns => { state.dl = ns; }).catch(() => { state.dl = null; }); else state.dl = null;
+    const res = await loadData();
+    if (res.error) { $('#loading').hidden = true; const le = $('#loadError'); le.hidden = false; $('#loadErrorMsg').textContent = 'Could not load the data file (' + res.error + '). Check your connection, or load a data.json produced by the pipeline.'; return; }
+    state.data = res.j; state.source = res.src; $('#loading').hidden = true; $('#main').hidden = false; renderFreshness(); compute(); renderAll();
+  }
+  window.DMApp = { state, openIndicator, renderAll, compute };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+</script>
