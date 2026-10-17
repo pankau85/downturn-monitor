@@ -1,0 +1,42 @@
+id,title,units,freq,last_date,last_value,n_obs,source,ok
+T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-16,0.83,11200,FRED,True
+T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-16,0.35,12591,FRED,True
+DGS2,2-Year Treasury yield,pct,D,2026-10-15,4.77,12590,FRED,True
+DGS10,10-Year Treasury yield,pct,D,2026-10-15,5.1,16182,FRED,True
+DFF,Effective federal funds rate (daily),pct,D,2026-10-15,3.88,18551,FRED,True
+FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-09-01,3.75,813,FRED,True
+DFII10,10-Year TIPS real yield,pct,D,2026-10-15,2.78,5951,FRED,True
+CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
+PCEPILFE,Core PCE price index (SA),index,M,2026-08-01,130.455,812,FRED,True
+DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-14,101.91,9523,FRED,True
+BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-15,3.23,786,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-15,0.84,785,FRED,True
+NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-09,-0.499,2910,FRED,True
+STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-09,-0.7206,1711,FRED,True
+DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
+SAHMREALTIME,Real-time Sahm Rule recession indicator,pct pts,M,2026-09-01,0.0,801,FRED,True
+UNRATE,Unemployment rate,pct,M,2026-09-01,4.2,812,FRED,True
+ICSA,Initial jobless claims (SA),persons,W,2026-10-10,199000.0,3119,FRED,True
+CCSA,Continued jobless claims (SA),persons,W,2026-10-03,1710000.0,3118,FRED,True
+PAYEMS,Total nonfarm payrolls (SA),thousands,M,2026-09-01,159044.0,813,FRED,True
+CFNAIMA3,"Chicago Fed National Activity Index, 3-month MA",index,M,2026-08-01,0.01,712,FRED,True
+WEI,Weekly Economic Index (Lewis-Mertens-Stock),index,W,2026-10-10,3.05,980,FRED,True
+PERMIT,"Building permits, new private housing (SAAR)",thousands,M,2026-08-01,1403.0,800,FRED,True
+NEWORDER,Mfg new orders: nondefense capital goods ex aircraft,USD mn,M,2026-08-01,87640.0,415,FRED,True
+INDPRO,Industrial production index,index,M,2026-09-01,103.9506,813,FRED,True
+GACDFSA066MSFRBPHI,Philadelphia Fed manufacturing: current general activity (SA),diffusion,M,2026-10-01,20.9,702,FRED,True
+GACDISA066MSFRBNY,Empire State manufacturing: general business conditions (SA),diffusion,M,2026-10-01,25.5,304,FRED,True
+UMCSENT,U. Michigan consumer sentiment,index,M,2026-08-01,51.7,658,FRED,True
+W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-08-01,17046.6,812,FRED,True
+RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
+DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
+SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-16,7659.44,2514,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-10-15,16.46,9296,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-10-15,26713.03,10529,FRED,True
+DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-09,121.6023,5208,FRED,True
+USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
+RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
+M2SL,M2 money stock (SA),USD bn,M,2026-08-01,23342.8,812,FRED,True
+SPX,"S&P 500 (Stooq, full history)",index,D,2026-10-16,7659.439941,168,STOOQ,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-16,101.102898,288,YAHOO,True
+ISMPMI,ISM Manufacturing PMI,diffusion,M,2025-12-01,10.3,68,DBNOMICS_ISM,True
