@@ -41,6 +41,7 @@
     const attempts = [];
     if (CONFIG.liveUrl) attempts.push(fetchJson(CONFIG.liveUrl, 20000).then(j => ({ j, src: 'live feed (GitHub)' })).catch(e => ({ e, src: 'live feed' })));
     attempts.push(fetchJson('data.json', 20000).then(j => ({ j, src: 'published snapshot' })).catch(e => ({ e, src: 'snapshot' })));
+    if (window.DM_EMBEDDED && window.DM_EMBEDDED.series) attempts.push(Promise.resolve({ j: window.DM_EMBEDDED, src: 'data built into this file' }));
     const res = await Promise.all(attempts);
     const ok = res.filter(r => r.j && r.j.series);
     if (!ok.length) return { error: res.map(r => r.src + ': ' + (r.e && r.e.message || 'failed')).join(' · ') };

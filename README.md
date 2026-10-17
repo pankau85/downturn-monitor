@@ -26,8 +26,9 @@ Three ways to open the dashboard, all reading the same `data/data.json`:
 
 - **GitHub Pages** (plain website): `index.html` at the repository root, served at `https://pankau85.github.io/downturn-monitor/`
   once Pages is enabled (Settings → Pages → Deploy from a branch → `main` / root). It reads `data/data.json` relatively.
-- **Standalone file**: `downturn-monitor.html` — one self-contained file you can download, email or put on a shared drive;
-  it fetches the data from this repository's raw URL when opened, with a "Load data file" fallback when offline.
+- **Standalone file**: `downturn-monitor.html` — one self-contained file (about 2 MB) you can download, email or put on a
+  shared drive. The day's data is built into it, so it opens with no network at all; when it can reach this repository it
+  swaps in newer data automatically. Re-download it any time for a fresh snapshot (the workflow rebuilds it daily).
 - **Claude artifact**: the same page published as an artifact, with its own daily-refreshed snapshot of the data.
 
 Both HTML copies are rebuilt from `site/` by the workflow on every run, so they never drift from the source.

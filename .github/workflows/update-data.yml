@@ -36,7 +36,7 @@ jobs:
       - name: Rebuild the GitHub Pages copy and the standalone file from site/ sources
         run: |
           python pipeline/build_site.py --out index.html --live-url data/data.json --repo-url https://github.com/${{ github.repository }}
-          python pipeline/build_site.py --out downturn-monitor.html --live-url https://raw.githubusercontent.com/${{ github.repository }}/main/data/data.json --repo-url https://github.com/${{ github.repository }}
+          python pipeline/build_site.py --out downturn-monitor.html --embed-data data/data.json --live-url https://raw.githubusercontent.com/${{ github.repository }}/main/data/data.json --repo-url https://github.com/${{ github.repository }}
 
       - name: Commit refreshed data
         run: |

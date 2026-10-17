@@ -16,12 +16,18 @@ def main() -> None:
     ap.add_argument("--live-url", default="")
     ap.add_argument("--repo-url", default="")
     ap.add_argument("--out", default=os.path.join(SITE, "downturn-monitor.html"))
+    ap.add_argument("--embed-data", default="", help="path to data.json to build into the file (offline-capable single file)")
     a = ap.parse_args()
     read = lambda n: open(os.path.join(SITE, n), encoding="utf-8").read()
     html = read("template.html")
     cfg = {k: v for k, v in {"liveUrl": a.live_url, "repoUrl": a.repo_url}.items() if v}
     html = html.replace("/*__CSS__*/", read("styles.css"))
     html = html.replace("/*__CONFIG__*/{}", json.dumps(cfg))
+    if a.embed_data:
+        raw = open(a.embed_data, encoding="utf-8").read().replace("</", "<\\/")
+        html = html.replace("/*__EMBED__*/", "window.DM_EMBEDDED=" + raw + ";")
+    else:
+        html = html.replace("/*__EMBED__*/", "")
     html = html.replace("/*__ENGINE__*/", read("engine.js").replace("</script>", "<\\/script>"))
     html = html.replace("/*__APP__*/", read("app.js").replace("</script>", "<\\/script>"))
     with open(a.out, "w", encoding="utf-8") as f:
