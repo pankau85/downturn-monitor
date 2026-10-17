@@ -154,7 +154,7 @@
       scorer: (vs) => ({ score: maxSeries(scoreSeries(vs, [0.95, 1.15, 1.45, 1.9, 2.6]), scoreSeries(changeDays(vs, 91, false), [0.10, 0.25, 0.45, 0.75, 1.25])), aux: { name: '3-month change (pp)', series: changeDays(vs, 91, false), fmt: F.pp2 } }),
       rule: 'Higher of level (0.95% → 1, 1.15 → 2, 1.45 → 3, 1.9 → 4, ≥2.6 → 5) and 3-month change (+0.10 pp → 1, +0.25 → 2, +0.45 → 3, +0.75 → 4, ≥ +1.25 → 5).',
       why: 'Investment-grade spreads move less but matter more for TRS-sized fixed income books: they drive mark-to-market on the core bond sleeve and signal funding stress for large borrowers.' },
-    { id: 'baa_spread', pillar: 'credit', name: 'Baa corporate spread over 10-year Treasury, level and 3-month change', short: 'Baa spread', weight: 15, inputs: ['BAA10Y'], unit: 'pp', fmt: F.pct2, lag: 1,
+    { id: 'baa_spread', pillar: 'credit', name: 'Baa corporate spread over 10-year Treasury, level and 3-month change', short: 'Baa spread', weight: 15, inputs: ['BAA10Y'], unit: 'pp', fmt: x => (x == null ? '–' : x.toFixed(2) + ' pp'), lag: 1,
       transform: S => S.BAA10Y, anchors: [1.75, 2.25, 2.75, 3.5, 4.5],
       scorer: (vs) => ({ score: maxSeries(scoreSeries(vs, [1.75, 2.25, 2.75, 3.5, 4.5]), scoreSeries(changeDays(vs, 91, false), [0.1, 0.3, 0.5, 0.8, 1.25])), aux: { name: '3-month change (pp)', series: changeDays(vs, 91, false), fmt: F.pp2 } }),
       rule: 'Higher of level (1.75 pp → 1, 2.25 → 2, 2.75 → 3, 3.5 → 4, ≥ 4.5 → 5) and 3-month change (+0.10 pp → 1, +0.30 → 2, +0.50 → 3, +0.80 → 4, ≥ +1.25 → 5).',
@@ -264,6 +264,19 @@
     { n: 5, name: 'Severe', from: 4.2, to: 5.01, desc: 'Recession or major correction under way or imminent.' },
   ];
   const levelOf = s => (s == null ? null : LEVELS.find(L => s >= L.from && s < L.to) || LEVELS[4]);
+  // Aggregates (pillars, lenses, composite) average many indicator scores, which compresses their range.
+  // These bands are calibrated on 1990–2026 history so that recessions reach High/Severe while
+  // non-recession stress episodes top out at Elevated.
+  const COMPOSITE_LEVELS = [
+    { n: 1, name: 'Benign', from: 1.0, to: 1.7, desc: 'Expansion intact. Few indicators elevated.' },
+    { n: 2, name: 'Guarded', from: 1.7, to: 2.3, desc: 'Late-cycle signs. Worth watching, not acting on.' },
+    { n: 3, name: 'Elevated', from: 2.3, to: 3.0, desc: 'Broad slowdown or market-stress signals. Corrections typical at this level.' },
+    { n: 4, name: 'High', from: 3.0, to: 3.7, desc: 'Recession or major correction risk high. Several pillars stressed.' },
+    { n: 5, name: 'Severe', from: 3.7, to: 5.01, desc: 'Recession or major correction under way or imminent.' },
+  ];
+  const levelOfComposite = s => (s == null ? null : COMPOSITE_LEVELS.find(L => s >= L.from && s < L.to) || COMPOSITE_LEVELS[4]);
+  // position of a composite score on an equal-width five-band scale (0..5), for gauges and meters
+  const bandPosition = s => { if (s == null) return null; const L = levelOfComposite(s); const w = Math.min(5, L.to) - L.from; return (L.n - 1) + Math.max(0, Math.min(1, (s - L.from) / w)); };
 
   const STRESS_EPISODES = [
     { name: 'LTCM / Russia', from: '1998-08-31', to: '1998-10-31' },
@@ -364,7 +377,7 @@
     const rows = recs.map(r => {
       const startEOM = addMonths(r.start, 0); const endEOM = r.end ? addMonths(r.end, -1) : hist.t[hist.t.length - 1];
       // first month within the prior 18 months with composite >= 3.4 (High)
-      let lead = null; for (let k = 18; k >= 0; k--) { const d = addMonths(startEOM, -k); const c = at(d); if (c != null && c >= 3.4) { lead = k; break; } }
+      let lead = null; const HIGH = COMPOSITE_LEVELS[3].from; for (let k = 18; k >= 0; k--) { const d = addMonths(startEOM, -k); const c = at(d); if (c != null && c >= HIGH) { lead = k; break; } }
       return { name: 'Recession ' + dayToYmd(r.start).slice(0, 7) + (r.end ? ' – ' + dayToYmd(addMonths(r.end, -1)).slice(0, 7) : ' – ongoing'), start: r.start, m12: at(addMonths(startEOM, -12)), m6: at(addMonths(startEOM, -6)), m3: at(addMonths(startEOM, -3)), m0: at(startEOM), peak: maxIn(startEOM, endEOM), lead };
     });
     const stress = STRESS_EPISODES.map(e => ({ name: e.name, from: e.from, to: e.to, peak: maxIn(ymdToDay(e.from), ymdToDay(e.to)) }));
@@ -379,5 +392,5 @@
   }
 
   return { MS_DAY, dayToDate, dateToDay, ymdToDay, dayToYmd, addMonths, monthEndDay, idxAt, valueAt, last, slice, upTo, mapSeries, pctChangeK, diffK, changeDays, rollMean, rollMax, rollMin, combine, percentileOf,
-    scoreFromAnchors, scoreSeries, curveScore, F, PILLARS, INDICATORS, REFERENCE, LEVELS, levelOf, STRESS_EPISODES, prepareSeries, buildModel, readIndicator, aggregate, history, recessions, backtest, changesSince };
+    scoreFromAnchors, scoreSeries, curveScore, F, PILLARS, INDICATORS, REFERENCE, LEVELS, levelOf, COMPOSITE_LEVELS, levelOfComposite, bandPosition, STRESS_EPISODES, prepareSeries, buildModel, readIndicator, aggregate, history, recessions, backtest, changesSince };
 });

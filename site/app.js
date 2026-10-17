@@ -9,10 +9,15 @@
   const fmtDay = d => { const x = DM.dayToDate(d); return MONTHS[x.getUTCMonth()] + ' ' + x.getUTCDate() + ', ' + x.getUTCFullYear(); };
   const fmtMonth = d => { const x = DM.dayToDate(d); return MONTHS[x.getUTCMonth()] + ' ' + x.getUTCFullYear(); };
   const fmtScore = s => (s == null ? '–' : s.toFixed(1));
+  const ordinal = n => { n = Math.round(n); const m100 = n % 100, m10 = n % 10; return n + ((m100 >= 11 && m100 <= 13) ? 'th' : m10 === 1 ? 'st' : m10 === 2 ? 'nd' : m10 === 3 ? 'rd' : 'th'); };
   const fmtObs = (x, day) => { const sid = x.def.inputs[0]; const fq = state.data && state.data.series[sid] ? state.data.series[sid].freq : 'D'; if (fq === 'M') return fmtMonth(day); if (fq === 'Q') { const dt = DM.dayToDate(day); return 'Q' + (Math.floor(dt.getUTCMonth() / 3) + 1) + ' ' + dt.getUTCFullYear(); } return fmtDay(day); };
   const fmtDelta = (d, digits) => { if (d == null) return '–'; const n = digits == null ? 1 : digits; const r = Math.abs(d).toFixed(n); const zero = parseFloat(r) === 0; return (zero ? '' : d > 0 ? '+' : '−') + r; };
   const lv = s => DM.levelOf(s);
+  const lvC = s => DM.levelOfComposite(s);
   const lvClass = s => (s == null ? 'na' : 'l' + lv(s).n);
+  const lvClassC = s => (s == null ? 'na' : 'l' + lvC(s).n);
+  const chipC = s => { const L = lvC(s); return el('span', { class: 'chip ' + lvClassC(s), text: s == null ? 'n/a' : fmtScore(s) + ' ' + L.name }); };
+  const chipNameC = s => { const L = lvC(s); return el('span', { class: 'chip ' + lvClassC(s), text: L ? L.name : 'n/a' }); };
   const chipName = s => { const L = lv(s); return el('span', { class: 'chip ' + lvClass(s), text: L ? L.name : 'n/a' }); };
   const chip = (s, withName) => { const L = lv(s); return el('span', { class: 'chip ' + lvClass(s), text: s == null ? 'n/a' : (fmtScore(s) + (withName === false ? '' : ' ' + L.name)) }); };
   const PILLAR_BY_ID = Object.fromEntries(DM.PILLARS.map(p => [p.id, p]));
@@ -108,17 +113,19 @@
   }
   const sparkline = (host, t, v, opts) => { opts = opts || {}; const W = opts.w || host.clientWidth || 200, H = opts.h || 44, p = 5; const pts = []; for (let i = 0; i < t.length; i++) if (v[i] != null) pts.push([t[i], v[i]]); if (pts.length < 2) { host.innerHTML = ''; return; } const x0 = pts[0][0], x1 = pts[pts.length - 1][0]; let lo = opts.min != null ? opts.min : Math.min(...pts.map(p => p[1])), hi = opts.max != null ? opts.max : Math.max(...pts.map(p => p[1])); if (lo === hi) { lo -= 1; hi += 1; } const xs = d => p + (d - x0) / (x1 - x0 || 1) * (W - 2 * p), ys = y => p + (hi - y) / (hi - lo) * (H - 2 * p); let d = ''; pts.forEach((q, i) => { d += (i ? 'L' : 'M') + xs(q[0]).toFixed(1) + ' ' + ys(q[1]).toFixed(1); }); const e = pts[pts.length - 1]; host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true">${opts.bands ? opts.bands.map(b => `<rect x="0" y="${ys(Math.min(hi, b.to))}" width="${W}" height="${Math.max(0, ys(Math.max(lo, b.from)) - ys(Math.min(hi, b.to)))}" fill="${b.color}" opacity="0.10"/>`).join('') : ''}<path d="${d}" fill="none" stroke="var(--ink-2)" stroke-width="1.5"/><circle cx="${xs(e[0])}" cy="${ys(e[1])}" r="3.5" fill="${opts.endColor || 'var(--ink)'}" stroke="var(--surface)" stroke-width="1.5"/></svg>`; };
   const levelBands = () => DM.LEVELS.map(L => ({ from: L.from, to: Math.min(5, L.to), color: `var(--l${L.n})` }));
+  const compositeBands = () => DM.COMPOSITE_LEVELS.map(L => ({ from: L.from, to: Math.min(5, L.to), color: `var(--l${L.n})` }));
   const recessionShades = () => DM.recessions(state.model.S).map(r => ({ from: r.start, to: r.end || state.today }));
 
   // ---------------- gauge ----------------
   function gaugeSVG(score, ghost) {
-    const cx = 170, cy = 178, r = 126, sw = 22; const ang = s => Math.PI * (1 - (Math.max(1, Math.min(5, s)) - 1) / 4); const pt = (a, rr) => [cx + rr * Math.cos(a), cy - rr * Math.sin(a)];
-    const seg = (s0, s1, col) => { const gap = 0.02; const a0 = ang(s0) - (s0 > 1 ? gap : 0), a1 = ang(s1) + (s1 < 5 ? gap : 0); const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${sw}"/>`; };
-    let s = ''; DM.LEVELS.forEach(L => { s += seg(L.from, Math.min(5, L.to), `var(--l${L.n})`); });
-    for (let k = 1; k <= 5; k++) { const [x, y] = pt(ang(k), r - sw / 2 - 11); s += `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" fill="var(--ink-3)">${k}</text>`; }
-    const deg = s0 => (s0 == null ? -90 : -90 + (Math.max(1, Math.min(5, s0)) - 1) / 4 * 180);
-    if (ghost != null) { const [gx, gy] = pt(ang(ghost), r + sw / 2 + 9); s += `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"><title>a month ago</title></circle>`; }
-    // pointer: a marker that rides the outside of the arc and a hairline across it
+    const cx = 170, cy = 178, r = 126, sw = 22; const ang = pos => Math.PI * (1 - Math.max(0, Math.min(5, pos)) / 5); const pt = (a, rr) => [cx + rr * Math.cos(a), cy - rr * Math.sin(a)];
+    const seg = (p0, p1, col) => { const gap = 0.02; const a0 = ang(p0) - (p0 > 0 ? gap : 0), a1 = ang(p1) + (p1 < 5 ? gap : 0); const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `<path d="M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${sw}"/>`; };
+    let s = ''; DM.COMPOSITE_LEVELS.forEach((L, i) => { s += seg(i, i + 1, `var(--l${L.n})`); });
+    // boundary labels: the composite values where one band hands over to the next
+    const labels = [1, ...DM.COMPOSITE_LEVELS.slice(1).map(L => L.from), 5];
+    labels.forEach((v, k) => { const [x, y] = pt(ang(k), r - sw / 2 - 11); s += `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--ink-3)">${k === 0 || k === 5 ? v : v.toFixed(1)}</text>`; });
+    const deg = s0 => (s0 == null ? -90 : -90 + DM.bandPosition(s0) / 5 * 180);
+    if (ghost != null) { const [gx, gy] = pt(ang(DM.bandPosition(ghost)), r + sw / 2 + 9); s += `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"><title>a month ago</title></circle>`; }
     const ro = r + sw / 2, tipR = ro + 3, baseR = ro + 15;
     s += `<g class="needle" style="transform-origin:${cx}px ${cy}px;transform:rotate(${deg(score)}deg);transition:transform .6s cubic-bezier(.2,.7,.2,1)"><line x1="${cx}" y1="${cy - r + sw / 2 - 1}" x2="${cx}" y2="${cy - r - sw / 2 + 1}" stroke="var(--surface)" stroke-width="3"/><line x1="${cx}" y1="${cy - r + sw / 2 - 1}" x2="${cx}" y2="${cy - r - sw / 2 + 1}" stroke="var(--ink)" stroke-width="1.5"/><path d="M${cx - 7} ${cy - baseR}L${cx} ${cy - tipR}L${cx + 7} ${cy - baseR}Z" fill="var(--ink)"/></g>`;
     return `<svg viewBox="0 0 340 200" role="img" aria-label="Composite score gauge">${s}</svg>`;
@@ -135,7 +142,7 @@
   }
 
   function renderHero() {
-    const a = viewAgg(); const s = a.composite; const L = lv(s);
+    const a = viewAgg(); const s = a.composite; const L = lvC(s);
     $('#gauge').innerHTML = gaugeSVG(s, compositeAgo(1));
     $('#gaugeScore').textContent = fmtScore(s);
     const gl = $('#gaugeLevel'); gl.innerHTML = ''; gl.appendChild(el('span', { class: 'swatch', style: `background:var(--l${L ? L.n : 1})` })); gl.appendChild(document.createTextNode(L ? `${L.n} · ${L.name}` : '–'));
@@ -143,7 +150,7 @@
     const d1 = compositeAgo(1), d3 = compositeAgo(3), d12 = compositeAgo(12); const dd = $('#gaugeDeltas'); dd.innerHTML = '';
     for (const [lab, v] of [['1 month', d1], ['3 months', d3], ['12 months', d12]]) { const diff = (s != null && v != null) ? s - v : null; dd.appendChild(el('span', null, `vs ${lab} ago `, el('b', { text: fmtDelta(diff) }))); }
     const lensBox = $('#lenses'); lensBox.innerHTML = '';
-    for (const [key, name, desc] of [['macro', 'Economy', 'Rates & policy, labor, growth, consumer'], ['market', 'Markets', 'Credit conditions and market stress']]) { const v = a[key]; const LL = lv(v); const box = el('div', { class: 'lens' }); box.appendChild(el('div', { class: 'lens-head' }, el('span', { class: 't', text: name }), el('span', { class: 's' }, chip(v)))); const meter = el('div', { class: 'meter', role: 'img', 'aria-label': `${name} score ${fmtScore(v)}` }); for (let k = 1; k <= 5; k++) { const seg = el('i'); const lo = 1 + (k - 1) * 0.8, hi = lo + 0.8; const pct = v == null ? 0 : Math.max(0, Math.min(1, (v - lo) / (hi - lo))); const b = el('b'); b.style.setProperty('--fill', (pct * 100).toFixed(0) + '%'); seg.appendChild(b); meter.appendChild(seg); } box.appendChild(meter); box.appendChild(el('div', { class: 'meter-scale' }, el('span', { text: '1' }), el('span', { text: desc }), el('span', { text: '5' }))); lensBox.appendChild(box); }
+    for (const [key, name, desc] of [['macro', 'Economy', 'Rates & policy, labor, growth, consumer'], ['market', 'Markets', 'Credit conditions and market stress']]) { const v = a[key]; const box = el('div', { class: 'lens' }); box.appendChild(el('div', { class: 'lens-head' }, el('span', { class: 't', text: name }), el('span', { class: 's' }, chipC(v)))); const meter = el('div', { class: 'meter', role: 'img', 'aria-label': `${name} score ${fmtScore(v)}` }); const pos = DM.bandPosition(v); for (let k = 1; k <= 5; k++) { const seg = el('i'); const pct = pos == null ? 0 : Math.max(0, Math.min(1, pos - (k - 1))); const b = el('b'); b.style.setProperty('--fill', (pct * 100).toFixed(0) + '%'); seg.appendChild(b); meter.appendChild(seg); } box.appendChild(meter); box.appendChild(el('div', { class: 'meter-scale' }, el('span', { text: '1' }), el('span', { text: desc }), el('span', { text: '5' }))); lensBox.appendChild(box); }
     const diff = $('#diffusion'); diff.innerHTML = ''; const total = a.counts.reduce((x, y) => x + y, 0) || 1; const bar = el('div', { class: 'bar', role: 'img', 'aria-label': 'Indicators by level' }); a.counts.forEach((c, i) => { if (!c) return; const sp = el('span'); sp.style.width = (c / total * 100) + '%'; sp.style.background = `var(--l${i + 1})`; bar.appendChild(sp); }); diff.appendChild(el('div', { class: 'lens-head' }, el('span', { class: 't', text: `${a.n} indicators by level` }), el('span', { class: 's small muted', text: `${Math.round(a.coverage * 100)}% of weight available` }))); diff.appendChild(bar);
     const leg = el('div', { class: 'legend' }); DM.LEVELS.forEach((Lx, i) => { const k = el('span'); const sw = el('i'); sw.style.background = `var(--l${Lx.n})`; k.appendChild(sw); k.appendChild(document.createTextNode(`${Lx.name} ${a.counts[i]}`)); leg.appendChild(k); }); diff.appendChild(leg);
     // summary sentence
@@ -168,13 +175,13 @@
     const h = state.hist; const days = RANGES[state.range]; let xTo = state.today; let xFrom = days ? xTo - days : h.t[0];
     if (state.asOf != null && days && state.asOf < xFrom + days * 0.1) { xFrom = state.asOf - Math.round(days * 0.65); xTo = Math.min(state.today, state.asOf + Math.round(days * 0.35)); }
     const host = $('#histChart');
-    lineChart(host, { xFrom, xTo, yMin: 1, yMax: 5, yTicks: [1, 2, 3, 4, 5], height: host.clientWidth < 600 ? 220 : 280, aria: 'Composite score history', bands: levelBands(), shades: recessionShades(), cursorDay: state.asOf, cursorLabel: 'viewing', tipDate: d => (d === state.today ? 'Today (' + fmtDay(d) + ')' : fmtMonth(d)),
+    lineChart(host, { xFrom, xTo, yMin: 1, yMax: 5, yTicks: [1, 2, 3, 4, 5], height: host.clientWidth < 600 ? 220 : 280, aria: 'Composite score history', bands: compositeBands(), shades: recessionShades(), cursorDay: state.asOf, cursorLabel: 'viewing', tipDate: d => (d === state.today ? 'Today (' + fmtDay(d) + ')' : fmtMonth(d)),
       series: [
         { name: 'Composite', t: h.t, v: h.composite, color: 'var(--ink)', width: 2.25, fmt: fmtScore },
         { name: 'Economy', t: h.t, v: h.macro, color: 'var(--accent)', width: 1.5, fmt: fmtScore, hidden: !state.lens.macro },
         { name: 'Markets', t: h.t, v: h.market, color: 'var(--lens2)', width: 1.5, fmt: fmtScore, hidden: !state.lens.market },
       ],
-      tipExtra: d => { const i = DM.idxAt({ t: h.t }, d); const c = i < 0 ? null : h.coverage[i]; const L = i < 0 ? null : lv(h.composite[i]); return (L ? L.name + ' · ' : '') + (c != null ? Math.round(c * 100) + '% of indicator weight available' : ''); },
+      tipExtra: d => { const i = DM.idxAt({ t: h.t }, d); const c = i < 0 ? null : h.coverage[i]; const L = i < 0 ? null : lvC(h.composite[i]); return (L ? L.name + ' · ' : '') + (c != null ? Math.round(c * 100) + '% of indicator weight available' : ''); },
       onClick: day => { let i = DM.idxAt({ t: h.t }, day); if (i < 0) i = 0; if (i + 1 < h.t.length && Math.abs(h.t[i + 1] - day) < Math.abs(h.t[i] - day)) i++; state.asOf = (i >= state.asOfMax) ? null : h.t[i]; renderAll(); } });
     const lg = $('#histLegend'); lg.innerHTML = '';
     const mk = (name, color, key) => { const b = el('button', { class: 'key', 'aria-pressed': key ? String(state.lens[key]) : 'true', onclick: key ? () => { state.lens[key] = !state.lens[key]; renderHistory(); } : null }); const i = el('i'); i.style.setProperty('--kc', color); b.appendChild(i); b.appendChild(document.createTextNode(name)); return b; };
@@ -188,10 +195,10 @@
     const i1 = histAt(DM.addMonths(day, -1)); const prev = i1 == null ? null : DM.aggregate(state.model, h.t[Math.min(i1, state.asOfMax - 1)], false);
     for (const p of state.model.pillars) {
       const ps = a.pillars[p.id]; const card = el('div', { class: 'card pillar' });
-      const head = el('div', { class: 'pillar-head' }, el('div', null, el('div', { class: 'name', text: p.name }), el('div', { class: 'w', text: `${p.weight}% of composite · ${ps.n} indicators` })), el('div', { class: 'pillar-score' }, el('div', { class: 'v ' + lvClass(ps.score), text: fmtScore(ps.score) }), chipName(ps.score)));
+      const head = el('div', { class: 'pillar-head' }, el('div', null, el('div', { class: 'name', text: p.name }), el('div', { class: 'w', text: `${p.weight}% of composite · ${ps.n} indicators` })), el('div', { class: 'pillar-score' }, el('div', { class: 'v ' + lvClassC(ps.score), text: fmtScore(ps.score) }), chipNameC(ps.score)));
       card.appendChild(head); host.appendChild(card);
       const sp = el('div', { class: 'pillar-spark' }); card.appendChild(sp);
-      const idxEnd = state.asOf == null ? h.t.length - 1 : histAt(state.asOf); const i0 = Math.max(0, idxEnd - 60); sparkline(sp, h.t.slice(i0, idxEnd + 1), h.pillars[p.id].slice(i0, idxEnd + 1), { min: 1, max: 5, bands: levelBands(), endColor: `var(--l${lv(ps.score) ? lv(ps.score).n : 1})` });
+      const idxEnd = state.asOf == null ? h.t.length - 1 : histAt(state.asOf); const i0 = Math.max(0, idxEnd - 60); sparkline(sp, h.t.slice(i0, idxEnd + 1), h.pillars[p.id].slice(i0, idxEnd + 1), { min: 1, max: 5, bands: compositeBands(), endColor: `var(--l${lvC(ps.score) ? lvC(ps.score).n : 1})` });
       const ul = el('ul', { class: 'pillar-list' });
       for (const x of state.model.ind.filter(x => x.def.pillar === p.id)) {
         const r = a.byInd[x.def.id]; const li = el('li', { class: x.enabled && x.available ? '' : 'off', tabindex: '0', role: 'button', onclick: () => openIndicator(x.def.id), onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIndicator(x.def.id); } } });
@@ -216,7 +223,7 @@
       const d = (r && pr && r.score != null && pr.score != null) ? r.score - pr.score : null; tr.appendChild(el('td', { class: 'r', text: d == null ? '' : fmtDelta(d) }));
       tr.appendChild(el('td', { class: 'r', text: r && r.score != null ? r.score.toFixed(2) : '' }));
       tr.appendChild(el('td', null, chip(r ? r.score : null)));
-      const pc = el('td'); if (row.pct != null) { const w = el('span', { class: 'pct' }); const bar = el('i'); const b = el('b'); b.style.width = row.pct.toFixed(0) + '%'; bar.appendChild(b); w.appendChild(bar); w.appendChild(el('span', { class: 'ep', text: Math.round(row.pct) + 'th' })); pc.appendChild(w); } tr.appendChild(pc);
+      const pc = el('td'); if (row.pct != null) { const w = el('span', { class: 'pct' }); const bar = el('i'); const b = el('b'); b.style.width = row.pct.toFixed(0) + '%'; bar.appendChild(b); w.appendChild(bar); w.appendChild(el('span', { class: 'ep', text: ordinal(row.pct) })); pc.appendChild(w); } tr.appendChild(pc);
       const pweight = state.model.pillars.find(p => p.id === x.def.pillar).weight; const sumP = state.model.pillars.reduce((s, p) => s + p.weight, 0) || 1; const totalW = state.model.ind.filter(y => y.def.pillar === x.def.pillar && y.enabled && y.available).reduce((s, y) => s + y.weight, 0) || 1; const eff = x.enabled && x.available ? 100 * (pweight / sumP) * (x.weight / totalW) : 0; tr.appendChild(el('td', { class: 'r', text: eff.toFixed(1) + '%' }));
       tb.appendChild(tr); }
     $$('#tbl th[data-key]').forEach(th => th.setAttribute('aria-sort', th.dataset.key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'));
@@ -224,9 +231,9 @@
 
   function renderBacktest() {
     const bt = state.bt; const t1 = $('#btRecessions'); t1.innerHTML = '';
-    for (const r of bt.recessions) { const tr = el('tr'); tr.appendChild(el('td', { text: r.name })); for (const v of [r.m12, r.m6, r.m3, r.m0, r.peak]) tr.appendChild(el('td', { class: 'r' }, v == null ? el('span', { class: 'muted', text: '–' }) : chip(v, false))); tr.appendChild(el('td', { class: 'r', text: r.lead == null ? 'no High reading in prior 18 months' : r.lead === 0 ? 'at the start month' : `${r.lead} months before` })); t1.appendChild(tr); }
+    for (const r of bt.recessions) { const tr = el('tr'); tr.appendChild(el('td', { text: r.name })); for (const v of [r.m12, r.m6, r.m3, r.m0, r.peak]) tr.appendChild(el('td', { class: 'r' }, v == null ? el('span', { class: 'muted', text: '–' }) : chipC(v))); tr.appendChild(el('td', { text: r.lead == null ? 'none in the prior 18 months' : r.lead === 0 ? 'in the start month' : r.lead === 1 ? '1 month before' : `${r.lead} months before` })); t1.appendChild(tr); }
     const t2 = $('#btStress'); t2.innerHTML = '';
-    for (const e of bt.stress) { const tr = el('tr'); tr.appendChild(el('td', { text: e.name })); tr.appendChild(el('td', { class: 'ep', text: fmtMonth(DM.ymdToDay(e.from)) + ' – ' + fmtMonth(DM.ymdToDay(e.to)) })); tr.appendChild(el('td', { class: 'r' }, e.peak == null ? el('span', { class: 'muted', text: '–' }) : chip(e.peak))); t2.appendChild(tr); }
+    for (const e of bt.stress) { const tr = el('tr'); tr.appendChild(el('td', { text: e.name })); tr.appendChild(el('td', { class: 'ep', text: fmtMonth(DM.ymdToDay(e.from)) + ' – ' + fmtMonth(DM.ymdToDay(e.to)) })); tr.appendChild(el('td', { class: 'r' }, e.peak == null ? el('span', { class: 'muted', text: '–' }) : chipC(e.peak))); t2.appendChild(tr); }
   }
 
   function renderReference() {
@@ -256,7 +263,7 @@
     const k = el('div', { class: 'kpis' });
     k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'Latest value' }), el('div', { class: 'v', text: r ? d.fmt(r.value) : '–' }), el('div', { class: 'ep', text: r ? fmtObs(x, r.t) : '' })));
     k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'Score' }), el('div', { class: 'v' }, chip(r ? r.score : null)), el('div', { class: 'ep', text: x.curve && r ? ((x.curve.state[DM.idxAt(x.score, r.t)] || '') + (x.curve.lastInvEnd && x.curve.state[DM.idxAt(x.score, r.t)] !== 'normal' && x.curve.state[DM.idxAt(x.score, r.t)] !== 'inverted' ? ' · inversion ended ' + fmtDay(x.curve.lastInvEnd) : '')) : '' })));
-    const pct = r ? DM.percentileOf(x.values, r.t, 3653) : null; k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: '10-year percentile' }), el('div', { class: 'v', text: pct == null ? '–' : Math.round(pct) + 'th' }), el('div', { class: 'ep', text: 'of readings in the trailing 10 years' })));
+    const pct = r ? DM.percentileOf(x.values, r.t, 3653) : null; k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: '10-year percentile' }), el('div', { class: 'v', text: pct == null ? '–' : ordinal(pct) }), el('div', { class: 'ep', text: 'of readings in the trailing 10 years' })));
     const prevR = (() => { const i1 = histAt(DM.addMonths(viewDay(), -1)); if (i1 == null) return null; return DM.readIndicator(x, state.hist.t[Math.min(i1, state.asOfMax - 1)], false); })(); k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: 'A month ago' }), el('div', { class: 'v sm', text: prevR ? d.fmt(prevR.value) : '–' }), el('div', { class: 'ep', text: prevR && r && prevR.score != null && r.score != null ? 'score ' + fmtDelta(r.score - prevR.score) : '' })));
     if (x.aux) { const av = r ? DM.valueAt(x.aux.series, r.t, 10) : null; k.appendChild(el('div', { class: 'kpi' }, el('div', { class: 'l', text: x.aux.name }), el('div', { class: 'v sm', text: av ? x.aux.fmt(av.v) : '–' }))); }
     body.appendChild(k);
@@ -299,7 +306,7 @@
   }
 
   // ---------------- export ----------------
-  function scoresCSV() { const a = viewAgg(); const rows = [['indicator', 'pillar', 'as_of_date', 'value', 'unit', 'score', 'level', 'weight_in_pillar', 'pillar_weight', 'included']]; for (const x of state.model.ind) { const r = a.byInd[x.def.id]; rows.push([x.def.short, PILLAR_BY_ID[x.def.pillar].name, r ? DM.dayToYmd(r.t) : '', r ? r.value : '', x.def.unit, r && r.score != null ? r.score.toFixed(3) : '', r && r.score != null ? lv(r.score).name : '', x.weight, state.model.pillars.find(p => p.id === x.def.pillar).weight, x.enabled && x.available ? 'yes' : 'no']); } rows.push([]); rows.push(['composite', '', DM.dayToYmd(viewDay()), '', '', a.composite == null ? '' : a.composite.toFixed(3), a.composite == null ? '' : lv(a.composite).name]); rows.push(['economy lens', '', '', '', '', a.macro == null ? '' : a.macro.toFixed(3)]); rows.push(['markets lens', '', '', '', '', a.market == null ? '' : a.market.toFixed(3)]); rows.push([]); rows.push(['composite history (month-end, release lags applied)']); rows.push(['date', 'composite', 'economy', 'markets', 'coverage']); state.hist.t.forEach((t, i) => rows.push([DM.dayToYmd(t), fmtN(state.hist.composite[i]), fmtN(state.hist.macro[i]), fmtN(state.hist.market[i]), fmtN(state.hist.coverage[i])])); return rows.map(r => r.map(c => { const s = c == null ? '' : String(c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n'); }
+  function scoresCSV() { const a = viewAgg(); const rows = [['indicator', 'pillar', 'as_of_date', 'value', 'unit', 'score', 'level', 'weight_in_pillar', 'pillar_weight', 'included']]; for (const x of state.model.ind) { const r = a.byInd[x.def.id]; rows.push([x.def.short, PILLAR_BY_ID[x.def.pillar].name, r ? DM.dayToYmd(r.t) : '', r ? r.value : '', x.def.unit, r && r.score != null ? r.score.toFixed(3) : '', r && r.score != null ? lv(r.score).name : '', x.weight, state.model.pillars.find(p => p.id === x.def.pillar).weight, x.enabled && x.available ? 'yes' : 'no']); } rows.push([]); rows.push(['composite', '', DM.dayToYmd(viewDay()), '', '', a.composite == null ? '' : a.composite.toFixed(3), a.composite == null ? '' : lvC(a.composite).name]); rows.push(['economy lens', '', '', '', '', a.macro == null ? '' : a.macro.toFixed(3)]); rows.push(['markets lens', '', '', '', '', a.market == null ? '' : a.market.toFixed(3)]); rows.push([]); rows.push(['composite history (month-end, release lags applied)']); rows.push(['date', 'composite', 'economy', 'markets', 'coverage']); state.hist.t.forEach((t, i) => rows.push([DM.dayToYmd(t), fmtN(state.hist.composite[i]), fmtN(state.hist.macro[i]), fmtN(state.hist.market[i]), fmtN(state.hist.coverage[i])])); return rows.map(r => r.map(c => { const s = c == null ? '' : String(c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n'); }
   const fmtN = v => (v == null ? '' : (+v).toFixed(3));
   async function exportScores() { const csv = scoresCSV(); if (state.dl) { try { await state.dl.save({ filename: 'downturn-monitor-scores-' + DM.dayToYmd(viewDay()) + '.csv', data: csv }); toast('Saved'); return; } catch (e) { if (e && e.code === 'declined') return; } } copyText(csv, 'Scores copied as CSV (download not available in this view)'); }
   function copyText(text, msg) { const done = () => toast(msg || 'Copied'); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done); }

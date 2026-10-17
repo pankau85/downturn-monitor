@@ -95,13 +95,11 @@
       <div class="sec-head">
         <div><h2>Track record</h2><p>How the composite read before and during each NBER recession since 1990, and how high it got during market stress episodes that did not become recessions. Historical readings use data as revised today, except the Sahm rule, which is the real-time series.</p></div>
       </div>
-      <div class="two-col">
-        <div class="tbl-wrap">
-          <table class="tbl"><thead><tr><th>Recession</th><th class="r">12m before</th><th class="r">6m before</th><th class="r">3m before</th><th class="r">Start</th><th class="r">Peak</th><th class="r">First High reading</th></tr></thead><tbody id="btRecessions"></tbody></table>
-        </div>
-        <div class="tbl-wrap">
-          <table class="tbl"><thead><tr><th>Stress episode (no recession)</th><th>Window</th><th class="r">Peak composite</th></tr></thead><tbody id="btStress"></tbody></table>
-        </div>
+      <div class="tbl-wrap">
+        <table class="tbl"><thead><tr><th>Recession (NBER)</th><th class="r">12 months before</th><th class="r">6 months before</th><th class="r">3 months before</th><th class="r">Start month</th><th class="r">Peak during</th><th>First High reading</th></tr></thead><tbody id="btRecessions"></tbody></table>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl"><thead><tr><th>Stress episode without a recession</th><th>Window</th><th class="r">Peak composite</th></tr></thead><tbody id="btStress"></tbody></table>
       </div>
     </section>
 
@@ -115,16 +113,16 @@
     <section class="card">
       <div class="sec-head"><div><h2>How the score works</h2></div></div>
       <div class="levels">
-        <div class="level-card l1"><div class="n">1</div><div class="t">Benign</div><div class="r">1.0 – 1.8</div><div class="d">Expansion intact. Few indicators elevated.</div></div>
-        <div class="level-card l2"><div class="n">2</div><div class="t">Guarded</div><div class="r">1.8 – 2.6</div><div class="d">Late-cycle signs. Worth watching, not acting on.</div></div>
-        <div class="level-card l3"><div class="n">3</div><div class="t">Elevated</div><div class="r">2.6 – 3.4</div><div class="d">Broad slowdown signals. Corrections are typical here.</div></div>
-        <div class="level-card l4"><div class="n">4</div><div class="t">High</div><div class="r">3.4 – 4.2</div><div class="d">Recession or correction risk high; several pillars stressed.</div></div>
-        <div class="level-card l5"><div class="n">5</div><div class="t">Severe</div><div class="r">4.2 – 5.0</div><div class="d">Recession or major correction under way or imminent.</div></div>
+        <div class="level-card l1"><div class="n">1</div><div class="t">Benign</div><div class="r">composite 1.0 – 1.7</div><div class="d">Expansion intact. Few indicators elevated.</div></div>
+        <div class="level-card l2"><div class="n">2</div><div class="t">Guarded</div><div class="r">1.7 – 2.3</div><div class="d">Late-cycle signs. Worth watching, not acting on.</div></div>
+        <div class="level-card l3"><div class="n">3</div><div class="t">Elevated</div><div class="r">2.3 – 3.0</div><div class="d">Broad slowdown or market-stress signals. Corrections are typical here.</div></div>
+        <div class="level-card l4"><div class="n">4</div><div class="t">High</div><div class="r">3.0 – 3.7</div><div class="d">Recession or major correction risk high; several pillars stressed.</div></div>
+        <div class="level-card l5"><div class="n">5</div><div class="t">Severe</div><div class="r">3.7 – 5.0</div><div class="d">Recession or major correction under way or imminent.</div></div>
       </div>
       <div class="prose">
-        <p>Every indicator is converted to a continuous score from 1 to 5 using five thresholds: the values at which it would read exactly 1, 2, 3, 4 and 5, with straight-line interpolation in between. The thresholds come from the published literature on each indicator (the Sahm rule’s 0.50 pp, the Chicago Fed’s −0.70, the conventional 10% correction and 20% bear market) and from how the series behaved around past recessions. A few indicators use a richer rule: the yield curve is cycle-aware (the danger window is the re-steepening after an inversion), credit spreads take the higher of a level score and a momentum score, CPI is two-sided, and consumer sentiment blends level and change.</p>
-        <p>Indicators are averaged within each pillar using the weights shown, and pillars are averaged into the composite. Indicators with no data drop out and the remaining weights are rescaled, so the score is always comparable; the coverage figure tells you how much of the intended weight is in play. The Economy lens averages the rates, labor, growth and consumer pillars; the Markets lens averages credit conditions and market stress.</p>
-        <p>The composite is a prior, not a forecast. No single indicator has a clean record and the set as a whole has produced readings above 3 in several episodes that ended without a recession (see the track record above). Its job is to tell you how much of the usual pre-downturn pattern is present, and which pieces are driving it.</p>
+        <p>Every indicator is converted to a continuous score from 1 to 5 using five thresholds: the values at which it would read exactly 1, 2, 3, 4 and 5, with straight-line interpolation in between. The thresholds come from the published literature on each indicator (the Sahm rule’s 0.50 pp, the Chicago Fed’s −0.70, the conventional 10% correction and 20% bear market) and from how each series behaved around past recessions. A few indicators use a richer rule: the yield curve is cycle-aware (the danger window is the re-steepening after an inversion), credit spreads take the higher of a level score and a momentum score, CPI is two-sided, and consumer sentiment and card delinquencies blend level and change. Individual indicators are labelled on equal bands (Benign below 1.8, Guarded to 2.6, Elevated to 3.4, High to 4.2, Severe above).</p>
+        <p>Indicators are averaged within each pillar using the weights shown, and pillars are averaged into the composite. Averaging thirty scores compresses the range, so the composite, the two lenses and the pillars use the calibrated bands above: on 1990–2026 history every recession reached High or Severe, while the market-stress episodes that did not become recessions topped out at Elevated. The gauge gives each band an equal arc and marks the hand-over values. Indicators with no data drop out and the remaining weights are rescaled; the coverage figure tells you how much of the intended weight is in play. The Economy lens averages the rates, labor, growth and consumer pillars; the Markets lens averages credit conditions and market stress.</p>
+        <p>The composite is a prior, not a forecast. No single indicator has a clean record, and the set as a whole has read Elevated in several episodes that ended without a recession (see the track record above). Its job is to tell you how much of the usual pre-downturn pattern is present, and which pieces are driving it.</p>
       </div>
       <div class="two-col">
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pillar</th><th class="r">Weight</th><th>Lens</th><th>Indicators and weights within the pillar</th></tr></thead><tbody id="weightsTbl"></tbody></table></div>
@@ -132,8 +130,8 @@
           <h3>Known limitations</h3>
           <ul>
             <li>The Conference Board LEI and consumer confidence are proprietary and not included; the OECD and Philadelphia Fed leading indexes are candidates for a later version.</li>
-            <li>ISM’s PMI is not on FRED; it is pulled from DBnomics when available and shown as unavailable otherwise. The regional Fed surveys cover the same ground.</li>
-            <li>S&amp;P 500 history before 2016 comes from Stooq or Yahoo Finance (FRED carries only ten years). If both fail, equity indicators run on FRED’s ten years.</li>
+            <li>ISM’s PMI has no free machine-readable source and is not included; the regional Fed surveys cover the same ground.</li>
+            <li>FRED carries only the trailing three years of the ICE BofA high-yield and investment-grade indexes, so the Baa corporate spread supplies the long credit history. S&amp;P 500 and MOVE history come from Yahoo Finance; if that feed fails, equity indicators fall back to FRED’s ten years of S&amp;P 500 data.</li>
             <li>Historical readings use today’s revised data (except the real-time Sahm rule) and assumed publication lags, so the back-test is cleaner than a true real-time test would be.</li>
             <li>Market data refreshes each morning for the prior close; monthly releases appear after the second daily run on release days.</li>
           </ul>
@@ -145,7 +143,7 @@
 
     <footer>
       <span>Data file generated <span id="genStamp"></span>.</span>
-      <span>Sources: FRED (Federal Reserve Bank of St. Louis), ICE BofA indexes via FRED, Chicago Fed, St. Louis Fed, New York Fed, Dallas Fed, BLS, BEA, Census, U. Michigan, CBOE, Stooq, Yahoo Finance, DBnomics.</span>
+      <span>Sources: FRED (Federal Reserve Bank of St. Louis), ICE BofA and Moody’s series via FRED, Chicago Fed, St. Louis Fed, New York Fed, Dallas Fed, BLS, BEA, Census, Federal Reserve Board, U. Michigan, CBOE, Yahoo Finance.</span>
       <a id="repoLink" href="#" target="_blank" rel="noopener">Pipeline and source code</a>
     </footer>
   </main>
