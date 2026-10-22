@@ -9,16 +9,16 @@ DFII10,10-Year TIPS real yield,pct,D,2026-10-20,2.77,5954,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-08-01,130.455,812,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-20,107.89,9527,FRED,True
-BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-20,3.33,785,FRED,True
-BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-20,0.87,784,FRED,True
+BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-21,3.27,786,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-21,0.88,785,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-20,1.44,10200,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-16,-0.496,2911,FRED,True
-STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-09,-0.7206,1711,FRED,True
+STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-16,-0.6328,1712,FRED,True
 DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
 SAHMREALTIME,Real-time Sahm Rule recession indicator,pct pts,M,2026-09-01,0.0,801,FRED,True
 UNRATE,Unemployment rate,pct,M,2026-09-01,4.2,812,FRED,True
-ICSA,Initial jobless claims (SA),persons,W,2026-10-10,199000.0,3119,FRED,True
-CCSA,Continued jobless claims (SA),persons,W,2026-10-03,1710000.0,3118,FRED,True
+ICSA,Initial jobless claims (SA),persons,W,2026-10-17,194000.0,3120,FRED,True
+CCSA,Continued jobless claims (SA),persons,W,2026-10-10,1728000.0,3119,FRED,True
 PAYEMS,Total nonfarm payrolls (SA),thousands,M,2026-09-01,159044.0,813,FRED,True
 CFNAIMA3,"Chicago Fed National Activity Index, 3-month MA",index,M,2026-08-01,0.01,712,FRED,True
 WEI,Weekly Economic Index (Lewis-Mertens-Stock),index,W,2026-10-10,3.05,980,FRED,True
@@ -32,12 +32,12 @@ W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-08-01
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
 SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-21,7757.17,2512,FRED,True
-VIXCLS,CBOE VIX,index,D,2026-10-20,17.31,9299,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-10-21,16.68,9300,FRED,True
 NASDAQCOM,NASDAQ Composite,index,D,2026-10-21,26702.86,10533,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-16,121.4048,5212,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-08-01,23342.8,812,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-21,7757.169922,10532,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-21,95.940002,5920,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-22,7658.859863,10533,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-22,102.407799,5921,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
