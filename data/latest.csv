@@ -10,7 +10,7 @@ CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-08-01,130.455,812,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-20,107.89,9527,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-23,3.38,784,FRED,True
-BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-23,0.91,783,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-26,0.9,783,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-23,1.47,10203,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-16,-0.496,2911,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-16,-0.6328,1712,FRED,True
@@ -22,8 +22,8 @@ CCSA,Continued jobless claims (SA),persons,W,2026-10-10,1728000.0,3119,FRED,True
 PAYEMS,Total nonfarm payrolls (SA),thousands,M,2026-09-01,159044.0,813,FRED,True
 CFNAIMA3,"Chicago Fed National Activity Index, 3-month MA",index,M,2026-09-01,0.03,713,FRED,True
 WEI,Weekly Economic Index (Lewis-Mertens-Stock),index,W,2026-10-17,3.33,981,FRED,True
-PERMIT,"Building permits, new private housing (SAAR)",thousands,M,2026-09-01,1400.0,801,FRED,True
-NEWORDER,Mfg new orders: nondefense capital goods ex aircraft,USD mn,M,2026-08-01,87640.0,415,FRED,True
+PERMIT,"Building permits, new private housing (SAAR)",thousands,M,2026-09-01,1398.0,801,FRED,True
+NEWORDER,Mfg new orders: nondefense capital goods ex aircraft,USD mn,M,2026-09-01,88039.0,416,FRED,True
 INDPRO,Industrial production index,index,M,2026-09-01,103.9506,813,FRED,True
 GACDFSA066MSFRBPHI,Philadelphia Fed manufacturing: current general activity (SA),diffusion,M,2026-10-01,20.9,702,FRED,True
 GACDISA066MSFRBNY,Empire State manufacturing: general business conditions (SA),diffusion,M,2026-10-01,25.5,304,FRED,True
@@ -32,12 +32,12 @@ W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-08-01
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
 SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-23,7623.68,2511,FRED,True
-VIXCLS,CBOE VIX,index,D,2026-10-23,19.45,9302,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-10-26,18.39,9303,FRED,True
 NASDAQCOM,NASDAQ Composite,index,D,2026-10-26,26169.38,10536,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-23,121.3202,5217,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-08-01,23342.8,812,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-26,7676.77002,10535,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-26,102.190002,5923,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-27,7715.029785,10536,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-27,100.303596,5924,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
