@@ -1,19 +1,19 @@
 id,title,units,freq,last_date,last_value,n_obs,source,ok
-T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-27,0.77,11207,FRED,True
-T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-27,0.29,12598,FRED,True
-DGS2,2-Year Treasury yield,pct,D,2026-10-26,4.68,12597,FRED,True
-DGS10,10-Year Treasury yield,pct,D,2026-10-26,5.0,16189,FRED,True
-DFF,Effective federal funds rate (daily),pct,D,2026-10-26,3.88,18562,FRED,True
+T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-28,0.87,11208,FRED,True
+T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-28,0.38,12599,FRED,True
+DGS2,2-Year Treasury yield,pct,D,2026-10-27,4.7,12598,FRED,True
+DGS10,10-Year Treasury yield,pct,D,2026-10-27,4.99,16190,FRED,True
+DFF,Effective federal funds rate (daily),pct,D,2026-10-27,3.88,18563,FRED,True
 FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-09-01,3.75,813,FRED,True
-DFII10,10-Year TIPS real yield,pct,D,2026-10-26,2.66,5958,FRED,True
+DFII10,10-Year TIPS real yield,pct,D,2026-10-27,2.64,5959,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-08-01,130.455,812,FRED,True
-DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-20,107.89,9527,FRED,True
+DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-27,103.37,9532,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-27,3.18,785,FRED,True
 BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-27,0.88,784,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-26,1.45,10204,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-23,-0.487,2912,FRED,True
-STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-16,-0.6328,1712,FRED,True
+STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-23,-0.5837,1713,FRED,True
 DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
 SAHMREALTIME,Real-time Sahm Rule recession indicator,pct pts,M,2026-09-01,0.0,801,FRED,True
 UNRATE,Unemployment rate,pct,M,2026-09-01,4.2,812,FRED,True
@@ -31,13 +31,13 @@ UMCSENT,U. Michigan consumer sentiment,index,M,2026-09-01,48.1,659,FRED,True
 W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-08-01,17046.6,812,FRED,True
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
-SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-27,7722.6,2512,FRED,True
+SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-28,7743.98,2512,FRED,True
 VIXCLS,CBOE VIX,index,D,2026-10-27,17.52,9304,FRED,True
-NASDAQCOM,NASDAQ Composite,index,D,2026-10-27,26477.81,10537,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-10-28,26549.85,10538,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-23,121.3202,5217,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-28,7735.25,10537,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-28,93.3927,5925,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-28,7743.97998,10537,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-28,94.550003,5925,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
