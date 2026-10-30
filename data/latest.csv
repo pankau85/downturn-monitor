@@ -1,17 +1,17 @@
 id,title,units,freq,last_date,last_value,n_obs,source,ok
-T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-28,0.87,11208,FRED,True
-T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-28,0.38,12599,FRED,True
-DGS2,2-Year Treasury yield,pct,D,2026-10-27,4.7,12598,FRED,True
-DGS10,10-Year Treasury yield,pct,D,2026-10-27,4.99,16190,FRED,True
-DFF,Effective federal funds rate (daily),pct,D,2026-10-27,3.88,18563,FRED,True
+T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-29,0.8,11209,FRED,True
+T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-29,0.37,12600,FRED,True
+DGS2,2-Year Treasury yield,pct,D,2026-10-28,4.67,12599,FRED,True
+DGS10,10-Year Treasury yield,pct,D,2026-10-28,5.05,16191,FRED,True
+DFF,Effective federal funds rate (daily),pct,D,2026-10-28,3.88,18564,FRED,True
 FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-09-01,3.75,813,FRED,True
-DFII10,10-Year TIPS real yield,pct,D,2026-10-27,2.64,5959,FRED,True
+DFII10,10-Year TIPS real yield,pct,D,2026-10-28,2.67,5960,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-27,103.37,9532,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-28,3.14,786,FRED,True
 BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-28,0.86,785,FRED,True
-BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-26,1.45,10204,FRED,True
+BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-28,1.43,10206,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-23,-0.487,2912,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-23,-0.5837,1713,FRED,True
 DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
@@ -21,7 +21,7 @@ ICSA,Initial jobless claims (SA),persons,W,2026-10-24,194000.0,3121,FRED,True
 CCSA,Continued jobless claims (SA),persons,W,2026-10-17,1701000.0,3120,FRED,True
 PAYEMS,Total nonfarm payrolls (SA),thousands,M,2026-09-01,159044.0,813,FRED,True
 CFNAIMA3,"Chicago Fed National Activity Index, 3-month MA",index,M,2026-09-01,0.03,713,FRED,True
-WEI,Weekly Economic Index (Lewis-Mertens-Stock),index,W,2026-10-17,3.33,981,FRED,True
+WEI,Weekly Economic Index (Lewis-Mertens-Stock),index,W,2026-10-24,2.98,982,FRED,True
 PERMIT,"Building permits, new private housing (SAAR)",thousands,M,2026-09-01,1398.0,801,FRED,True
 NEWORDER,Mfg new orders: nondefense capital goods ex aircraft,USD mn,M,2026-09-01,88039.0,416,FRED,True
 INDPRO,Industrial production index,index,M,2026-09-01,103.9506,813,FRED,True
@@ -33,11 +33,11 @@ RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,4
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
 SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-28,7743.98,2512,FRED,True
 VIXCLS,CBOE VIX,index,D,2026-10-28,16.91,9305,FRED,True
-NASDAQCOM,NASDAQ Composite,index,D,2026-10-28,26549.85,10538,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-10-29,26184.72,10539,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-23,121.3202,5217,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-08-01,0.62,711,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-29,7723.879883,10538,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-29,92.7313,5926,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-10-29,7720.390137,10538,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-10-29,93.540001,5926,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
