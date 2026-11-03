@@ -1,20 +1,20 @@
 id,title,units,freq,last_date,last_value,n_obs,source,ok
-T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-10-30,0.78,11210,FRED,True
-T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-10-30,0.38,12601,FRED,True
-DGS2,2-Year Treasury yield,pct,D,2026-10-29,4.61,12600,FRED,True
-DGS10,10-Year Treasury yield,pct,D,2026-10-29,4.98,16192,FRED,True
-DFF,Effective federal funds rate (daily),pct,D,2026-10-29,3.88,18565,FRED,True
-FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-09-01,3.75,813,FRED,True
-DFII10,10-Year TIPS real yield,pct,D,2026-10-29,2.63,5961,FRED,True
+T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-11-02,0.7,11211,FRED,True
+T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-11-02,0.32,12602,FRED,True
+DGS2,2-Year Treasury yield,pct,D,2026-10-30,4.56,12601,FRED,True
+DGS10,10-Year Treasury yield,pct,D,2026-10-30,4.94,16193,FRED,True
+DFF,Effective federal funds rate (daily),pct,D,2026-10-30,3.88,18566,FRED,True
+FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-10-01,3.88,814,FRED,True
+DFII10,10-Year TIPS real yield,pct,D,2026-10-30,2.6,5962,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-10-27,103.37,9532,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-10-30,3.44,784,FRED,True
 BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-10-30,0.94,783,FRED,True
-BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-29,1.49,10207,FRED,True
+BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-10-30,1.53,10208,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-23,-0.487,2912,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-23,-0.5837,1713,FRED,True
-DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-07-01,0.0,146,FRED,True
+DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-10-01,1.7,147,FRED,True
 SAHMREALTIME,Real-time Sahm Rule recession indicator,pct pts,M,2026-09-01,0.0,801,FRED,True
 UNRATE,Unemployment rate,pct,M,2026-09-01,4.2,812,FRED,True
 ICSA,Initial jobless claims (SA),persons,W,2026-10-24,194000.0,3121,FRED,True
@@ -31,13 +31,13 @@ UMCSENT,U. Michigan consumer sentiment,index,M,2026-09-01,48.1,659,FRED,True
 W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-09-01,17015.2,813,FRED,True
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
-SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-28,7743.98,2512,FRED,True
+SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-10-30,7580.07,2511,FRED,True
 VIXCLS,CBOE VIX,index,D,2026-10-30,19.42,9307,FRED,True
-NASDAQCOM,NASDAQ Composite,index,D,2026-10-29,26184.72,10539,FRED,True
-DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-23,121.3202,5217,FRED,True
-USREC,NBER recession indicator (1 = recession),flag,M,2026-09-01,0.0,813,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-11-02,25164.36,10541,FRED,True
+DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-30,121.6656,5222,FRED,True
+USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-02,7644.709961,10540,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-02,101.100098,5928,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-02,7541.399902,10540,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-02,100.360001,5928,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-09-01,12.758666,813,NYFED,True
