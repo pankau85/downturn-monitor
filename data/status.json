@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-09T11:57:54Z",
+ "generated_at": "2026-11-09T15:19:59Z",
  "summary": {
   "ok": 42,
   "failed": 0,
@@ -11,253 +11,253 @@
    "ok": true,
    "n": 11215,
    "end": "2026-11-06",
-   "secs": 0.44
+   "secs": 1.14
   },
   "T10Y2Y": {
    "ok": true,
    "n": 12606,
    "end": "2026-11-06",
-   "secs": 0.5
+   "secs": 0.21
   },
   "DGS2": {
    "ok": true,
    "n": 12605,
    "end": "2026-11-05",
-   "secs": 0.49
+   "secs": 0.12
   },
   "DGS10": {
    "ok": true,
    "n": 16197,
    "end": "2026-11-05",
-   "secs": 0.48
+   "secs": 1.29
   },
   "DFF": {
    "ok": true,
    "n": 18572,
    "end": "2026-11-05",
-   "secs": 3.45
+   "secs": 0.71
   },
   "FEDFUNDS": {
    "ok": true,
    "n": 814,
    "end": "2026-10-01",
-   "secs": 0.49
+   "secs": 1.17
   },
   "DFII10": {
    "ok": true,
    "n": 5966,
    "end": "2026-11-05",
-   "secs": 0.14
+   "secs": 1.11
   },
   "CPIAUCSL": {
    "ok": true,
    "n": 812,
    "end": "2026-09-01",
-   "secs": 0.56
+   "secs": 0.74
   },
   "PCEPILFE": {
    "ok": true,
    "n": 813,
    "end": "2026-09-01",
-   "secs": 0.35
+   "secs": 0.72
   },
   "DCOILWTICO": {
    "ok": true,
    "n": 9537,
    "end": "2026-11-03",
-   "secs": 2.17
+   "secs": 1.17
   },
   "BAMLH0A0HYM2": {
    "ok": true,
-   "n": 786,
-   "end": "2026-11-05",
-   "secs": 0.3
+   "n": 784,
+   "end": "2026-11-06",
+   "secs": 0.11
   },
   "BAMLC0A0CM": {
    "ok": true,
-   "n": 785,
-   "end": "2026-11-05",
-   "secs": 0.36
+   "n": 783,
+   "end": "2026-11-06",
+   "secs": 1.3
   },
   "BAA10Y": {
    "ok": true,
    "n": 10212,
    "end": "2026-11-05",
-   "secs": 0.47
+   "secs": 2.51
   },
   "NFCI": {
    "ok": true,
    "n": 2913,
    "end": "2026-10-30",
-   "secs": 0.33
+   "secs": 0.7
   },
   "STLFSI4": {
    "ok": true,
    "n": 1714,
    "end": "2026-10-30",
-   "secs": 0.71
+   "secs": 0.75
   },
   "DRTSCILM": {
    "ok": true,
    "n": 147,
    "end": "2026-10-01",
-   "secs": 0.28
+   "secs": 0.89
   },
   "SAHMREALTIME": {
    "ok": true,
    "n": 802,
    "end": "2026-10-01",
-   "secs": 0.49
+   "secs": 0.82
   },
   "UNRATE": {
    "ok": true,
    "n": 813,
    "end": "2026-10-01",
-   "secs": 0.47
+   "secs": 3.36
   },
   "ICSA": {
    "ok": true,
    "n": 3122,
    "end": "2026-10-31",
-   "secs": 0.41
+   "secs": 0.09
   },
   "CCSA": {
    "ok": true,
    "n": 3121,
    "end": "2026-10-24",
-   "secs": 0.9
+   "secs": 0.95
   },
   "PAYEMS": {
    "ok": true,
    "n": 814,
    "end": "2026-10-01",
-   "secs": 0.54
+   "secs": 0.84
   },
   "CFNAIMA3": {
    "ok": true,
    "n": 713,
    "end": "2026-09-01",
-   "secs": 1.25
+   "secs": 1.06
   },
   "WEI": {
    "ok": true,
    "n": 983,
    "end": "2026-10-31",
-   "secs": 0.56
+   "secs": 0.89
   },
   "PERMIT": {
    "ok": true,
    "n": 801,
    "end": "2026-09-01",
-   "secs": 0.35
+   "secs": 0.87
   },
   "NEWORDER": {
    "ok": true,
    "n": 416,
    "end": "2026-09-01",
-   "secs": 0.43
+   "secs": 0.83
   },
   "INDPRO": {
    "ok": true,
    "n": 813,
    "end": "2026-09-01",
-   "secs": 0.53
+   "secs": 1.75
   },
   "GACDFSA066MSFRBPHI": {
    "ok": true,
    "n": 702,
    "end": "2026-10-01",
-   "secs": 0.51
+   "secs": 0.94
   },
   "GACDISA066MSFRBNY": {
    "ok": true,
    "n": 304,
    "end": "2026-10-01",
-   "secs": 0.22
+   "secs": 1.57
   },
   "UMCSENT": {
    "ok": true,
    "n": 659,
    "end": "2026-09-01",
-   "secs": 0.7
+   "secs": 0.76
   },
   "W875RX1": {
    "ok": true,
    "n": 813,
    "end": "2026-09-01",
-   "secs": 0.56
+   "secs": 0.81
   },
   "RRSFS": {
    "ok": true,
    "n": 416,
    "end": "2026-09-01",
-   "secs": 0.46
+   "secs": 0.91
   },
   "DRCCLACBS": {
    "ok": true,
    "n": 142,
    "end": "2026-04-01",
-   "secs": 0.42
+   "secs": 1.76
   },
   "SP500": {
    "ok": true,
    "n": 2513,
    "end": "2026-11-05",
-   "secs": 0.36
+   "secs": 1.0
   },
   "VIXCLS": {
    "ok": true,
    "n": 9311,
    "end": "2026-11-05",
-   "secs": 0.39
+   "secs": 1.32
   },
   "NASDAQCOM": {
    "ok": true,
    "n": 10545,
    "end": "2026-11-06",
-   "secs": 2.2
+   "secs": 0.97
   },
   "DTWEXBGS": {
    "ok": true,
    "n": 5222,
    "end": "2026-10-30",
-   "secs": 0.35
+   "secs": 0.19
   },
   "USREC": {
    "ok": true,
    "n": 814,
    "end": "2026-10-01",
-   "secs": 0.48
+   "secs": 0.84
   },
   "RECPROUSM156N": {
    "ok": true,
    "n": 712,
    "end": "2026-09-01",
-   "secs": 0.56
+   "secs": 0.8
   },
   "M2SL": {
    "ok": true,
    "n": 813,
    "end": "2026-09-01",
-   "secs": 0.54
+   "secs": 1.27
   },
   "SPX": {
    "ok": true,
-   "n": 10544,
-   "end": "2026-11-06",
-   "secs": 0.42
+   "n": 10545,
+   "end": "2026-11-09",
+   "secs": 0.59
   },
   "MOVE": {
    "ok": true,
-   "n": 5932,
-   "end": "2026-11-06",
-   "secs": 0.18
+   "n": 5933,
+   "end": "2026-11-09",
+   "secs": 0.35
   },
   "NYFEDPROB": {
    "ok": true,
    "n": 814,
    "end": "2027-10-31",
-   "secs": 0.32
+   "secs": 0.29
   }
  }
 }

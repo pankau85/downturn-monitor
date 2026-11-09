@@ -9,8 +9,8 @@ DFII10,10-Year TIPS real yield,pct,D,2026-11-05,2.6,5966,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-11-03,99.64,9537,FRED,True
-BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-05,3.48,786,FRED,True
-BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-05,0.93,785,FRED,True
+BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-06,3.42,784,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-06,0.93,783,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-11-05,1.57,10212,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-10-30,-0.459,2913,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-10-30,-0.5224,1714,FRED,True
@@ -38,6 +38,6 @@ DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-10-30,121.6656,522
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-06,7376.859863,10544,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-06,92.769997,5932,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-09,7513.680176,10545,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-09,90.370598,5933,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
