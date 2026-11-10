@@ -6,7 +6,7 @@ DGS10,10-Year Treasury yield,pct,D,2026-11-06,4.86,16198,FRED,True
 DFF,Effective federal funds rate (daily),pct,D,2026-11-06,3.88,18573,FRED,True
 FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-10-01,3.88,814,FRED,True
 DFII10,10-Year TIPS real yield,pct,D,2026-11-06,2.63,5967,FRED,True
-CPIAUCSL,"CPI, all items (SA)",index,M,2026-09-01,336.298,812,FRED,True
+CPIAUCSL,"CPI, all items (SA)",index,M,2026-10-01,337.476,813,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-11-03,99.64,9537,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-06,3.42,784,FRED,True
@@ -32,12 +32,12 @@ W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-09-01
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-09-01,221536.0,416,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
 SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-05,7353.73,2513,FRED,True
-VIXCLS,CBOE VIX,index,D,2026-11-06,25.64,9312,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-11-09,19.92,9313,FRED,True
 NASDAQCOM,NASDAQ Composite,index,D,2026-11-09,25253.14,10546,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-11-06,121.8803,5227,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-09,7549.939941,10545,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-09,85.980003,5933,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-10,7534.299805,10546,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-10,89.061501,5934,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
