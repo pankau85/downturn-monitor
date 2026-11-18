@@ -1,17 +1,17 @@
 id,title,units,freq,last_date,last_value,n_obs,source,ok
-T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-11-17,0.77,11221,FRED,True
-T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-11-17,0.3,12612,FRED,True
-DGS2,2-Year Treasury yield,pct,D,2026-11-16,4.83,12611,FRED,True
-DGS10,10-Year Treasury yield,pct,D,2026-11-16,5.12,16203,FRED,True
-DFF,Effective federal funds rate (daily),pct,D,2026-11-16,3.88,18583,FRED,True
+T10Y3M,10-Year minus 3-Month Treasury spread,pct pts,D,2026-11-18,0.73,11222,FRED,True
+T10Y2Y,10-Year minus 2-Year Treasury spread,pct pts,D,2026-11-18,0.27,12613,FRED,True
+DGS2,2-Year Treasury yield,pct,D,2026-11-17,4.8,12612,FRED,True
+DGS10,10-Year Treasury yield,pct,D,2026-11-17,5.1,16204,FRED,True
+DFF,Effective federal funds rate (daily),pct,D,2026-11-17,3.88,18584,FRED,True
 FEDFUNDS,Effective federal funds rate (monthly),pct,M,2026-10-01,3.88,814,FRED,True
-DFII10,10-Year TIPS real yield,pct,D,2026-11-16,2.92,5972,FRED,True
+DFII10,10-Year TIPS real yield,pct,D,2026-11-17,2.89,5973,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-10-01,337.476,813,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-11-17,89.53,9547,FRED,True
 BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-17,3.43,785,FRED,True
 BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-17,0.92,784,FRED,True
-BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-11-16,1.5,10218,FRED,True
+BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-11-17,1.53,10219,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-11-13,-0.478,2915,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-11-13,-0.8655,1716,FRED,True
 DRTSCILM,SLOOS: net % of banks tightening C&I standards (large/mid firms),pct,Q,2026-10-01,1.7,147,FRED,True
@@ -38,6 +38,6 @@ DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-11-13,122.6503,523
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-18,7328.370117,10552,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-18,98.3899,5939,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-18,7323.629883,10552,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-18,98.153503,5939,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
