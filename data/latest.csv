@@ -9,8 +9,8 @@ DFII10,10-Year TIPS real yield,pct,D,2026-11-18,2.88,5974,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-10-01,337.476,813,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-09-01,130.902,813,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-11-17,89.53,9547,FRED,True
-BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-18,3.47,786,FRED,True
-BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-18,0.93,785,FRED,True
+BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-19,3.52,786,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-19,0.94,785,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-11-18,1.52,10220,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-11-13,-0.478,2915,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-11-13,-0.8655,1716,FRED,True
@@ -27,17 +27,17 @@ NEWORDER,Mfg new orders: nondefense capital goods ex aircraft,USD mn,M,2026-09-0
 INDPRO,Industrial production index,index,M,2026-10-01,103.3954,814,FRED,True
 GACDFSA066MSFRBPHI,Philadelphia Fed manufacturing: current general activity (SA),diffusion,M,2026-11-01,6.3,703,FRED,True
 GACDISA066MSFRBNY,Empire State manufacturing: general business conditions (SA),diffusion,M,2026-11-01,7.8,305,FRED,True
-UMCSENT,U. Michigan consumer sentiment,index,M,2026-09-01,48.1,659,FRED,True
+UMCSENT,U. Michigan consumer sentiment,index,M,2026-10-01,48.0,660,FRED,True
 W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-09-01,17015.2,813,FRED,True
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-10-01,221711.0,417,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
-SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-18,7323.63,2512,FRED,True
-VIXCLS,CBOE VIX,index,D,2026-11-18,24.56,9320,FRED,True
-NASDAQCOM,NASDAQ Composite,index,D,2026-11-18,24429.88,10553,FRED,True
+SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-19,7175.83,2513,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-11-19,28.44,9321,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-11-19,23879.2,10554,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-11-13,122.6503,5231,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-09-01,23413.9,813,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-19,7175.830078,10553,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-19,96.036301,5940,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-20,7021.899902,10554,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-20,103.811996,5941,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
