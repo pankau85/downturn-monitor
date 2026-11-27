@@ -9,8 +9,8 @@ DFII10,10-Year TIPS real yield,pct,D,2026-11-24,2.79,5978,FRED,True
 CPIAUCSL,"CPI, all items (SA)",index,M,2026-10-01,337.476,813,FRED,True
 PCEPILFE,Core PCE price index (SA),index,M,2026-10-01,131.312,814,FRED,True
 DCOILWTICO,WTI crude oil spot,USD/bbl,D,2026-11-24,82.24,9552,FRED,True
-BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-24,3.72,785,FRED,True
-BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-24,0.98,784,FRED,True
+BAMLH0A0HYM2,ICE BofA US High Yield OAS,pct,D,2026-11-26,3.77,786,FRED,True
+BAMLC0A0CM,ICE BofA US Corporate (IG) OAS,pct,D,2026-11-26,0.99,785,FRED,True
 BAA10Y,Moody's Baa corporate yield minus 10-Year Treasury,pct pts,D,2026-11-24,1.61,10224,FRED,True
 NFCI,Chicago Fed National Financial Conditions Index,index,W,2026-11-20,-0.444,2916,FRED,True
 STLFSI4,St. Louis Fed Financial Stress Index,index,W,2026-11-20,-0.0697,1717,FRED,True
@@ -31,13 +31,13 @@ UMCSENT,U. Michigan consumer sentiment,index,M,2026-10-01,48.0,660,FRED,True
 W875RX1,Real personal income excl. transfer receipts,USD bn (2017$),M,2026-10-01,17056.8,814,FRED,True
 RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-10-01,221711.0,417,FRED,True
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
-SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-24,7201.09,2512,FRED,True
-VIXCLS,CBOE VIX,index,D,2026-11-24,26.36,9324,FRED,True
+SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-25,7182.78,2513,FRED,True
+VIXCLS,CBOE VIX,index,D,2026-11-26,26.8,9326,FRED,True
 NASDAQCOM,NASDAQ Composite,index,D,2026-11-25,23585.8,10558,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-11-20,123.5978,5236,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-10-01,23532.8,814,FRED,True
-SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-25,7182.779785,10557,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-25,97.540001,5944,YAHOO,True
+SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-27,7297.490234,10558,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-27,95.295197,5945,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
