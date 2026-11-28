@@ -33,11 +33,11 @@ RRSFS,Real retail and food services sales,USD mn (2017$),M,2026-10-01,221711.0,4
 DRCCLACBS,"Credit card delinquency rate, all commercial banks",pct,Q,2026-04-01,2.85,142,FRED,True
 SP500,"S&P 500 (FRED, trailing 10 years)",index,D,2026-11-25,7182.78,2513,FRED,True
 VIXCLS,CBOE VIX,index,D,2026-11-26,26.8,9326,FRED,True
-NASDAQCOM,NASDAQ Composite,index,D,2026-11-25,23585.8,10558,FRED,True
+NASDAQCOM,NASDAQ Composite,index,D,2026-11-27,24129.5,10559,FRED,True
 DTWEXBGS,"Trade-weighted US dollar index, broad",index,D,2026-11-20,123.5978,5236,FRED,True
 USREC,NBER recession indicator (1 = recession),flag,M,2026-10-01,0.0,814,FRED,True
 RECPROUSM156N,Smoothed US recession probabilities (Chauvet-Piger),pct,M,2026-09-01,0.4,712,FRED,True
 M2SL,M2 money stock (SA),USD bn,M,2026-10-01,23532.8,814,FRED,True
 SPX,"S&P 500 (Yahoo Finance, full daily history)",index,D,2026-11-27,7297.490234,10558,YAHOO,True
-MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-27,95.295197,5945,YAHOO,True
+MOVE,ICE BofA MOVE index (Treasury implied vol),index,D,2026-11-27,95.300003,5945,YAHOO,True
 NYFEDPROB,NY Fed recession probability (yield-curve model); rows dated by the month predicted,pct,M,2027-10-31,12.415814,814,NYFED,True
